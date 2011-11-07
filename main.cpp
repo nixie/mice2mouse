@@ -3,6 +3,9 @@
 #include <cstdio>
 #include <cmath>
 #include <GL/glut.h>
+
+#include "mice2mouse.h"
+
 using namespace std;
 
 void onDisplay(void);
@@ -22,11 +25,11 @@ int old_x, old_y;
 int displac_x, displac_y;
 float mytime;
 bool paused;
-const int TIMER_INTERVAL=30;
-const int DISPLACEMENT=50;
+const int TIMER_INTERVAL=20;
+const int DISPLACEMENT=120;
 
-int size=100;
-int bs=20;              // block/brick size
+int size=300;
+int bs=size/6;              // block/brick size
 int bs_half=bs/2;
 int lp = size-bs_half;  // last possible block coordinate
 
@@ -47,15 +50,15 @@ void onResize(int w, int h)
     paused=true;
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();                       // nastaveni perspektivni projekce
-    gluPerspective(45, (double)w/(double)h, 0.1, 400.0);
+    gluPerspective(45, (double)w/(double)h, 0.1, 1000.0);
     glMatrixMode(GL_MODELVIEW);
 }
 
 void onTimer(int value){
     if (!paused) {
         mytime += 0.1;
-        displac_x = (int)(sin(mytime) * 50);
-        displac_y = (int)(cos(mytime) *50);
+        displac_x = (int)(sin(mytime) * DISPLACEMENT);
+        displac_y = (int)(cos(mytime) *DISPLACEMENT);
 
         glutPostRedisplay();            // a prekreslit scenu
     }
@@ -132,6 +135,7 @@ void onMouse(int btn, int state, int curr_x, int curr_y){
 }
 
 void onMotion(int curr_x, int curr_y){
+
     int dx= curr_x-old_x;
     int dy= old_y-curr_y;
 
@@ -173,7 +177,51 @@ void onMotion(int curr_x, int curr_y){
     glutPostRedisplay();
 }
 
+void on3Dmotion(int dx, int dy, int dz){
+    fprintf(stderr, "dx:%d, dy:%d, dz: %d\n", dx, dy, dz);
+    x += dx; y += dy; z += dz;
+    if (x > size) x=size;
+    if (x < 0) x=0; 
+    if (y > size) y=size;
+    if (y < 0) y=0; 
+    if (z > size) z=size;
+    if (z < 0) z=0;
+    glutPostRedisplay();
+}
+
+void on3Dmouse(int btn, int state){
+    if (btn == 0 && state == GLUT_DOWN){
+        std::cout << "put\n";
+        if (picked){
+            cx=x; cy=y; cz=z;
+        }
+        picked=!picked;
+
+        int nx,ny,nz;
+        nx = x/(bs+1);
+        ny = y/(bs+1);
+        nz = z/(bs+1);
+
+        nx *= bs;
+        ny *= bs;
+        nz *= bs;
+
+        placed[n_placed][0]=nx;
+        placed[n_placed][1]=ny;
+        placed[n_placed][2]=nz;
+        n_placed++;
+
+        glutPostRedisplay();
+    }
+
+}
+
 int main(int argc, char **argv){
+
+    if (argc != 3){
+        fprintf(stderr, "Usage: %s file1 file2\n", argv[0]);
+        return 1;
+    }
 
     /*** GLUT ***/
     // initialize glut
@@ -190,10 +238,19 @@ int main(int argc, char **argv){
     glutDisplayFunc(onDisplay);
     glutKeyboardFunc(onKeyboard);
     glutReshapeFunc(onResize);
-    glutMouseFunc(onMouse);
-    glutPassiveMotionFunc(onMotion);
+    //glutMouseFunc(onMouse);
+    //glutPassiveMotionFunc(onMotion);
     glutTimerFunc(TIMER_INTERVAL, onTimer,
             1234);  // registrace funkce volane pri jednom tiku casovace
+
+
+    if (m2m_init(argv[1], argv[2]) != 0){
+        fprintf(stderr, "Cannot initialize m2m\n");
+        return 1;
+    }
+    m2m_relMotionFunc(on3Dmotion);
+    m2m_mouseFunc(on3Dmouse);
+    glutIdleFunc(m2m_workHorse);
 
     /*** OPENGL ***/
     // define the color we use to clearscreen 
@@ -215,7 +272,7 @@ int main(int argc, char **argv){
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glEnable(GL_POINT_SMOOTH);  // point antialiasing 
     glEnable(GL_LINE_SMOOTH);   // line antialiasing
-
+    glHint (GL_LINE_SMOOTH_HINT, GL_DONT_CARE);
     // enter the main loop
     glutMainLoop();
 
@@ -237,16 +294,17 @@ void onDisplay(void){
 
     glLineWidth(2);
     glLoadIdentity();
-    gluLookAt ( (size+displac_x)/2, (size+displac_y)/2, 230.0,
+    gluLookAt ( (size+displac_x)/2, (size+displac_y)/2, 800.0,
                 size/2, size/2, 0.0,
                 0.0, 1.0, 0.0);
 
+    glScalef(1,1,1.5);
     renderCursor();
 
     glColor3f(1,1,1);
     glPushMatrix();
-    glTranslatef(50,50,50);
-    glutWireCube(100);
+    glTranslatef(size/2,size/2,size/2);
+    glutWireCube(size);
     glPopMatrix();
     
     snprintf(text_buf, TEXT_MAX, "[%d,%d,%d]", x, y, z);
@@ -331,6 +389,7 @@ void onKeyboard(unsigned char key, int x, int y){
             fullscreen=false;
         }else{
             glutFullScreen();
+            glutSetCursor( GLUT_CURSOR_NONE);
             fullscreen=true;
         }
     }

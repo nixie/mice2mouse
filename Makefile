@@ -3,4 +3,5 @@ LDFLAGS=-lglut -lGLU
 
 all: main
 
-main: main.cpp
+main: main.cpp mice2mouse.o
+	$(CC) $(LDFLAGS) $^
