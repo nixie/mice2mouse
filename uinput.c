@@ -46,7 +46,7 @@ int m2m_uinput_init(){
     struct uinput_user_dev uidev;
     memset(&uidev, 0, sizeof(uidev));
 
-    snprintf(uidev.name, UINPUT_MAX_NAME_SIZE, "SpaceTec SpaceBall 4000FLX");
+    snprintf(uidev.name, UINPUT_MAX_NAME_SIZE, "Mice2Mouse virtual device");
     uidev.id.bustype = BUS_USB;
     uidev.id.vendor  = 0x1234;
     uidev.id.product = 0xfedc;
