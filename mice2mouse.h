@@ -30,14 +30,17 @@
 // They are GLUT-like ...
 
 // func will be called after some of mouse buttons are pressed
-void m2m_mouseFunc(void (*func)(int btns, int state));
+// btn: number identifing button pressed (BTN_0..5)
+void m2m_mouseFunc(void (*func)(int btn, int state));
 
 // 3D coordinates has changed
 void m2m_relMotionFunc(void (*func)(int dx, int dy, int dz));
 
-// this must be registered in the main module of application with glutIdleFunc()
+// this must be registered in the main module of client application with
+// glutIdleFunc()
 void m2m_workHorse();
 
+// m2m initialization
 int m2m_init(char *evdev1, char *evdev2);
 
 #endif

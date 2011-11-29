@@ -42,14 +42,14 @@ void m2m_workHorse(){
             if (n == -1 && errno == EAGAIN){
                 ;
             } else if (n == -1) {
-                perror("reading device:");
+                perror("reading device");
                 exit(1);
             }
         } else {
             //fprintf(stderr, "Event here (%d) ..", n);
             // input event read
             new_flg = 1;
-            for (j=0; j < n/sizeof(struct input_event); j++){
+            for (j=0; j < n/(int)sizeof(struct input_event); j++){
                 if (ev[j].type == EV_REL){
                     //fprintf(stderr, "EV_REL\n");
                     switch (ev[j].code) {
@@ -123,25 +123,25 @@ void m2m_cleanup(){
 int m2m_init(char *evdev1, char *evdev2){
     fds[0] = open(evdev1, O_RDONLY);
     if (fds[0] == -1){
-        perror("opening first device: ");
+        perror("opening first device");
         m2m_cleanup();
         return -1;
     }
     fds[1] = open(evdev2, O_RDONLY);
     if (fds[1] == -1){
-        perror("opening second device: ");
+        perror("opening second device");
         m2m_cleanup();
         return -1;
     }
 
     // set read filedescriptors to be non-blocking
     if (fcntl(fds[0], F_SETFL, O_NONBLOCK) == -1){
-        perror("seting read to be nonblocking on first device: ");
+        perror("seting read to be nonblocking on first device");
         m2m_cleanup();
         return -1;
     }
     if (fcntl(fds[1], F_SETFL, O_NONBLOCK) == -1){
-        perror("seting read to be nonblocking on second device: ");
+        perror("seting read to be nonblocking on second device");
         m2m_cleanup();
         return -1;
     }
