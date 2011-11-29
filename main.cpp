@@ -220,6 +220,7 @@ void on3Dmouse(int btn, int state){
 
 int main(int argc, char **argv){
 
+    glutInit(&argc, argv);
     if (argc != 3){
         fprintf(stderr, "Usage: %s file1 file2\n", argv[0]);
         return 1;
@@ -227,7 +228,6 @@ int main(int argc, char **argv){
 
     /*** GLUT ***/
     // initialize glut
-    glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE|GLUT_DEPTH );
     glutInitWindowSize(500,500);
     glutInitWindowPosition(100,100);
