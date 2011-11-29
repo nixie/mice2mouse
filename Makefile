@@ -11,7 +11,7 @@ itu_demo: main.cpp mice2mouse.o
 
 
 clean:
-	rm -f itu_demo
+	rm -f itu_demo joytest uinput
 	rm -f *.o
 
 %.o: %.cpp %.h
