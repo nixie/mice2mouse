@@ -36,17 +36,24 @@ int m2m_uinput_init(){
     }
 
     int ret;
-    ret = ioctl(fd_uinput, UI_SET_EVBIT, EV_REL); ERR(ret);
+    ret = ioctl(fd_uinput, UI_SET_EVBIT, EV_ABS); ERR(ret);
+    ret = ioctl(fd_uinput, UI_SET_ABSBIT, ABS_X); ERR(ret);
+    ret = ioctl(fd_uinput, UI_SET_ABSBIT, ABS_Y); ERR(ret);
+    ret = ioctl(fd_uinput, UI_SET_ABSBIT, ABS_Z); ERR(ret);
+    ret = ioctl(fd_uinput, UI_SET_EVBIT, EV_KEY); ERR(ret);
+    ret = ioctl(fd_uinput, UI_SET_KEYBIT, BTN_0); ERR(ret);
+    ret = ioctl(fd_uinput, UI_SET_KEYBIT, BTN_1); ERR(ret);
+    ret = ioctl(fd_uinput, UI_SET_KEYBIT, BTN_2); ERR(ret);
+    ret = ioctl(fd_uinput, UI_SET_KEYBIT, BTN_3); ERR(ret);
+    ret = ioctl(fd_uinput, UI_SET_KEYBIT, BTN_4); ERR(ret);
+    ret = ioctl(fd_uinput, UI_SET_KEYBIT, BTN_5); ERR(ret);
     ret = ioctl(fd_uinput, UI_SET_EVBIT, EV_SYN); ERR(ret);
-    ret = ioctl(fd_uinput, UI_SET_RELBIT, REL_X); ERR(ret);
-    ret = ioctl(fd_uinput, UI_SET_RELBIT, REL_Y); ERR(ret);
-    ret = ioctl(fd_uinput, UI_SET_RELBIT, REL_Z); ERR(ret);
 
 
     struct uinput_user_dev uidev;
     memset(&uidev, 0, sizeof(uidev));
 
-    snprintf(uidev.name, UINPUT_MAX_NAME_SIZE, "Mice2Mouse virtual device");
+    snprintf(uidev.name, UINPUT_MAX_NAME_SIZE, "m2m");
     uidev.id.bustype = BUS_USB;
     uidev.id.vendor  = 0x1234;
     uidev.id.product = 0xfedc;
@@ -65,12 +72,12 @@ int m2m_send_rel(int delta[3]){
 
     struct input_event iev;
     memset(&iev, 0, sizeof(iev));
-    iev.type = EV_REL;
+    iev.type = EV_ABS;
     gettimeofday(&iev.time, NULL);
 
     int i, ret;
     for (i=0; i < 3; i++){
-        iev.code = REL_X + i;
+        iev.code = ABS_X + i;
         iev.value = delta[i];
 
         ret = write(fd_uinput, &iev, sizeof(iev));
@@ -87,6 +94,32 @@ int m2m_send_rel(int delta[3]){
 
     return 0;
 }
+
+int m2m_send_key(int code, int value){
+    struct input_event iev;
+    memset(&iev, 0, sizeof(iev));
+    iev.type = EV_KEY;
+    gettimeofday(&iev.time, NULL);
+
+    int ret;
+    iev.code = code;
+    iev.value = value;
+
+    ret = write(fd_uinput, &iev, sizeof(iev));
+    fprintf(stderr, "2size: %d, written: %d\n", sizeof(iev), ret);
+
+    memset(&iev, 0, sizeof(iev));
+    iev.type = EV_SYN;
+    gettimeofday(&iev.time, NULL);
+    iev.code = SYN_REPORT;
+    iev.value = 0;
+    ret = write(fd_uinput, &iev, sizeof(iev));
+    fprintf(stderr, "2size: %d, written: %d\n", sizeof(iev), ret);
+
+    return 0;
+}
+
+
 
 
 
@@ -117,7 +150,7 @@ int m2m_main_loop(){
                 new_flg = 1;
                 for (j=0; j < n/(int)sizeof(struct input_event); j++){
                     if (ev[j].type == EV_REL){
-                        //fprintf(stderr, "EV_REL\n");
+                        fprintf(stderr, "EV_REL(%d)\n", ev[j].code);
                         switch (ev[j].code) {
                             case REL_X:
                                 m2m_new_x[i] += ev[j].value;
@@ -125,12 +158,15 @@ int m2m_main_loop(){
                             case REL_Y:
                                 m2m_new_y[i] += ev[j].value;
                                 break;
+                            case REL_WHEEL:
+                                fprintf(stderr,"wheel(%d)\n", ev[j].value);
+                                break;
                             default:
                                 //fprintf(stderr,"Unknown EV_REL event code\n");
                                 ;
                         }
                     } else if (ev[j].type == EV_ABS){
-                        //fprintf(stderr, "EV_ABS\n");
+                        fprintf(stderr, "EV_ABS\n");
                         switch(ev[j].code) {
                             case ABS_X:
                                 m2m_new_x[i] = ev[j].value;
@@ -143,18 +179,23 @@ int m2m_main_loop(){
                                 ;
                         }
                     } else if (ev[j].type == EV_KEY){
-                        fprintf(stderr, "Keypress/release, value=%d\n",
-                                ev[j].value);
-                        if (ev[j].value == 0){
-                            ;
-                            //func_mouse(0, GLUT_UP);
-                        }else if (ev[j].value == 1){
-                            ;
-                            //func_mouse(0, GLUT_DOWN);
+                        fprintf(stderr, "Keypress/release, code=%d, val=%d\n",
+                                ev[j].code, ev[j].value);
+                        if (ev[j].code >= BTN_LEFT && ev[j].code <= BTN_RIGHT){
+                            
+                            // translate code into 0..2 range
+                            int newcode = ev[j].code - BTN_LEFT;
+                            // translate it into 0..5 range
+                            newcode += 3*i;
+                            // add BTN_MISC offset
+                            newcode += BTN_MISC;
+
+                            m2m_send_key(newcode, ev[j].value);
                         }
+
                     } else {
+                        //fprintf(stderr, "Event of type:%d\n", ev[j].type);
                         ;
-                        //fprintf(stderr, "Unknown(%d)\n", ev.type);
                     }
                 }
             }
