@@ -60,7 +60,7 @@ int m2m_uinput_init(){
     uidev.id.version = 1;
 
     ret = write(fd_uinput, &uidev, sizeof(uidev));
-    fprintf(stderr, "size: %d, written: %d\n", sizeof(uidev), ret);
+    //fprintf(stderr, "size: %d, written: %d\n", sizeof(uidev), ret);
 
     ret = ioctl(fd_uinput, UI_DEV_CREATE);
     ERR(ret);
@@ -81,7 +81,7 @@ int m2m_send_rel(int delta[3]){
         iev.value = delta[i];
 
         ret = write(fd_uinput, &iev, sizeof(iev));
-        fprintf(stderr, "2size: %d, written: %d\n", sizeof(iev), ret);
+        //fprintf(stderr, "2size: %d, written: %d\n", sizeof(iev), ret);
     }
 
     memset(&iev, 0, sizeof(iev));
@@ -90,7 +90,7 @@ int m2m_send_rel(int delta[3]){
     iev.code = SYN_REPORT;
     iev.value = 0;
     ret = write(fd_uinput, &iev, sizeof(iev));
-    fprintf(stderr, "2size: %d, written: %d\n", sizeof(iev), ret);
+    //fprintf(stderr, "2size: %d, written: %d\n", sizeof(iev), ret);
 
     return 0;
 }
@@ -106,7 +106,7 @@ int m2m_send_key(int code, int value){
     iev.value = value;
 
     ret = write(fd_uinput, &iev, sizeof(iev));
-    fprintf(stderr, "2size: %d, written: %d\n", sizeof(iev), ret);
+    //fprintf(stderr, "2size: %d, written: %d\n", sizeof(iev), ret);
 
     memset(&iev, 0, sizeof(iev));
     iev.type = EV_SYN;
@@ -114,7 +114,7 @@ int m2m_send_key(int code, int value){
     iev.code = SYN_REPORT;
     iev.value = 0;
     ret = write(fd_uinput, &iev, sizeof(iev));
-    fprintf(stderr, "2size: %d, written: %d\n", sizeof(iev), ret);
+    //fprintf(stderr, "2size: %d, written: %d\n", sizeof(iev), ret);
 
     return 0;
 }
@@ -125,15 +125,26 @@ int m2m_send_key(int code, int value){
 
 int m2m_main_loop(){
     // wait for events from mice and then inject it merged into our m2m device
-
+    fd_set readfds;
 
     while (1){
-        // TODO use select()!
+        FD_ZERO(&readfds);
+        FD_SET(fd_mice[0], &readfds);
+        FD_SET(fd_mice[1], &readfds);
+
         int i,j, n, new_flg = 0;
         m2m_old_x[0] = m2m_new_x[0];
         m2m_old_x[1] = m2m_new_x[1];
         m2m_old_y[0] = m2m_new_y[0];
         m2m_old_y[1] = m2m_new_y[1];
+
+        // just block until some of file descriptor is ready
+        n = select(fd_mice[1]+1, &readfds, NULL, NULL, NULL);
+        if (n <= 0){
+            perror("select");
+            exit(1);
+        }
+
         for (i=0; i < 2; i++){
             n = read(fd_mice[i], (void*)(&ev),
                     BUF_SIZE*sizeof(struct input_event));
@@ -141,7 +152,7 @@ int m2m_main_loop(){
                 if (n == -1 && errno == EAGAIN){
                     ;
                 } else if (n == -1) {
-                    perror("reading device:");
+                    perror("reading device");
                     exit(1);
                 }
             } else {
@@ -150,7 +161,7 @@ int m2m_main_loop(){
                 new_flg = 1;
                 for (j=0; j < n/(int)sizeof(struct input_event); j++){
                     if (ev[j].type == EV_REL){
-                        fprintf(stderr, "EV_REL(%d)\n", ev[j].code);
+                        //fprintf(stderr, "EV_REL(%d)\n", ev[j].code);
                         switch (ev[j].code) {
                             case REL_X:
                                 m2m_new_x[i] += ev[j].value;
@@ -159,14 +170,14 @@ int m2m_main_loop(){
                                 m2m_new_y[i] += ev[j].value;
                                 break;
                             case REL_WHEEL:
-                                fprintf(stderr,"wheel(%d)\n", ev[j].value);
+                                //fprintf(stderr,"wheel(%d)\n", ev[j].value);
                                 break;
                             default:
                                 //fprintf(stderr,"Unknown EV_REL event code\n");
                                 ;
                         }
                     } else if (ev[j].type == EV_ABS){
-                        fprintf(stderr, "EV_ABS\n");
+                        //fprintf(stderr, "EV_ABS\n");
                         switch(ev[j].code) {
                             case ABS_X:
                                 m2m_new_x[i] = ev[j].value;
@@ -179,9 +190,9 @@ int m2m_main_loop(){
                                 ;
                         }
                     } else if (ev[j].type == EV_KEY){
-                        fprintf(stderr, "Keypress/release, code=%d, val=%d\n",
-                                ev[j].code, ev[j].value);
-                        if (ev[j].code >= BTN_LEFT && ev[j].code <= BTN_RIGHT){
+                        //fprintf(stderr, "Keypress/release, code=%d, val=%d\n",
+                                //ev[j].code, ev[j].value);
+                        if (ev[j].code >= BTN_LEFT && ev[j].code <= BTN_MIDDLE){
                             
                             // translate code into 0..2 range
                             int newcode = ev[j].code - BTN_LEFT;
@@ -224,8 +235,6 @@ int m2m_main_loop(){
 
     return 0;
 }
-
-
 
 
 
