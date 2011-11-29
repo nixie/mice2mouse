@@ -1,0 +1,7 @@
+    * sepsat problemy pro pouziti glutSpaceballFunc a glutJoystickFunc
+    * learning mode - objevuji se kosticky a cilem je na ne co nejrychleji
+      kliknout/prenest je nekam -> statistika/graf rychlosti uceni - ovlinuje
+      optimalni rozlozeni mysi to, jestli je clovek levak nebo pravak?
+    * spravit vykreslovani
+    * malovaci mod
+    * rotace
