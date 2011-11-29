@@ -8,12 +8,14 @@
 
 using namespace std;
 
+// GLUT callbacks
 void onDisplay(void);
 void onKeyboard(unsigned char key, int x, int y);
 void onResize(int w, int h);
 void onMouse(int btn, int state, int x, int y);
 void onMotion(int x, int y);
 
+// not compiled display list for mouse cursor
 void renderCursor();
 
 bool fullscreen, picked;
@@ -374,7 +376,9 @@ void onDisplay(void){
 }
 
 
-void onKeyboard(unsigned char key, int x, int y){
+void onKeyboard(unsigned char key,
+        __attribute__((__unused__)) int x,
+        __attribute__((__unused__)) int y){
 
     glutPostRedisplay();
     if(key == 'q' || key == 27){
