@@ -10,6 +10,8 @@ all: itu_demo
 itu_demo: main.cpp mice2mouse.o hunt_log.o
 	$(CC) $(CFLAGS) $(LDFLAGS) $^ -o $@
 
+joytest: joytest.c
+	$(CC) $(CFLGS) $(LDFLAGS) `sdl-config --libs --cflags` $^ -o $@
 
 # SDL version
 CApp: CEvent.o CApp.cpp CApp.h
