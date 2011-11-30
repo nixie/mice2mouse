@@ -27,3 +27,12 @@ and to try usability of such configuration.
 * under Linux, you need to specify 2 device files, from where input
   events are read (something like /dev/input/eventX).
   Windows is not supported yet.
+
+### Uinput
+There is program uinput.c (uses Linux uinput kernel module), which does
+the translation and the output (3D coordinates and 6 buttons) is then
+accessible as a m2m joystick in /dev/input/.
+This device reports EV\_ABS values, but values are relative, just because
+we didnt find another way, how to feed GLUT or SDL with 3D events. To test
+this, use the CApp application (coordinate demo in SDL). Before that, start
+uinput daemon ...

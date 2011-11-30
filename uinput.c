@@ -1,3 +1,10 @@
+// This program creates virtual device /dev/input/eventXY from 2 physical
+// 2D pointers (events EV_REL or EV_ABS). This device offers EV_ABS type
+// of events, but actually it is EV_REL events generated -- it can be then
+// easily used with GLUT or SDL event subsytem.
+//
+// Note, that uinput module must be loaded into kernel. Use evtest utility,
+// to list available devices and to select the correct ('m2m') in user app.
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -6,18 +13,16 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <string.h>
+#include <signal.h>
 #include <errno.h>
 #include <GL/glut.h>
-
-
-// TODO:
-//  * select()
-//  * destroy m2m device on SIGTERM/SIGINT
 
 #define ERR(ret) if (ret == -1) { perror(NULL); exit(EXIT_FAILURE); }
 
 int fd_uinput;
 int fd_mice[2];
+int exit_flg=0;
+int exit_ret=0;
 
 #define BUF_SIZE 64
 struct input_event ev[BUF_SIZE];
@@ -27,6 +32,9 @@ int m2m_new_x[2], m2m_new_y[2];
 
 char uinput_path[] = "/dev/uinput";
 
+void signal_handler(int __attribute__((__unused__))signo){
+    exit_flg=1;
+}
 
 int m2m_uinput_init(){
     fd_uinput = open(uinput_path, O_WRONLY | O_NONBLOCK);
@@ -65,6 +73,9 @@ int m2m_uinput_init(){
     ret = ioctl(fd_uinput, UI_DEV_CREATE);
     ERR(ret);
 
+    signal(SIGINT, signal_handler);
+    signal(SIGTERM, signal_handler);
+
     return 0;
 }
 
@@ -75,13 +86,12 @@ int m2m_send_rel(int delta[3]){
     iev.type = EV_ABS;
     gettimeofday(&iev.time, NULL);
 
-    int i, ret;
+    int i;
     for (i=0; i < 3; i++){
         iev.code = ABS_X + i;
         iev.value = delta[i];
 
-        ret = write(fd_uinput, &iev, sizeof(iev));
-        //fprintf(stderr, "2size: %d, written: %d\n", sizeof(iev), ret);
+        write(fd_uinput, &iev, sizeof(iev));
     }
 
     memset(&iev, 0, sizeof(iev));
@@ -89,8 +99,7 @@ int m2m_send_rel(int delta[3]){
     gettimeofday(&iev.time, NULL);
     iev.code = SYN_REPORT;
     iev.value = 0;
-    ret = write(fd_uinput, &iev, sizeof(iev));
-    //fprintf(stderr, "2size: %d, written: %d\n", sizeof(iev), ret);
+    write(fd_uinput, &iev, sizeof(iev));
 
     return 0;
 }
@@ -101,26 +110,20 @@ int m2m_send_key(int code, int value){
     iev.type = EV_KEY;
     gettimeofday(&iev.time, NULL);
 
-    int ret;
     iev.code = code;
     iev.value = value;
 
-    ret = write(fd_uinput, &iev, sizeof(iev));
-    //fprintf(stderr, "2size: %d, written: %d\n", sizeof(iev), ret);
+    write(fd_uinput, &iev, sizeof(iev));
 
     memset(&iev, 0, sizeof(iev));
     iev.type = EV_SYN;
     gettimeofday(&iev.time, NULL);
     iev.code = SYN_REPORT;
     iev.value = 0;
-    ret = write(fd_uinput, &iev, sizeof(iev));
-    //fprintf(stderr, "2size: %d, written: %d\n", sizeof(iev), ret);
+    write(fd_uinput, &iev, sizeof(iev));
 
     return 0;
 }
-
-
-
 
 
 int m2m_main_loop(){
@@ -140,10 +143,20 @@ int m2m_main_loop(){
 
         // just block until some of file descriptor is ready
         n = select(fd_mice[1]+1, &readfds, NULL, NULL, NULL);
-        if (n <= 0){
+        if (n == -1){
+            if (errno == EINTR && exit_flg){
+                fprintf(stderr, "Signal received, exiting.\n");
+                // exit with success, closing program intentionally isnt an
+                // error
+                exit_ret = EXIT_SUCCESS;
+                break;
+            }
+
             perror("select");
-            exit(1);
+            exit_ret = EXIT_FAILURE;
+            break;
         }
+
 
         for (i=0; i < 2; i++){
             n = read(fd_mice[i], (void*)(&ev),
@@ -243,6 +256,7 @@ void m2m_cleanup(){
         close(fd_mice[0]);
     if (fd_mice[1] > 2)
         close(fd_mice[1]);
+    
 }
 
 
