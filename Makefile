@@ -7,7 +7,7 @@ SRC=*.cpp *.h Makefile
 all: itu_demo
 
 # GLUT version
-itu_demo: main.cpp mice2mouse.o
+itu_demo: main.cpp mice2mouse.o hunt_log.o
 	$(CC) $(CFLAGS) $(LDFLAGS) $^ -o $@
 
 

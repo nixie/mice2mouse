@@ -2,9 +2,11 @@
 #include <cstdlib>
 #include <cstdio>
 #include <cmath>
+#include <sys/time.h>
 #include <GL/glut.h>
 
 #include "mice2mouse.h"
+#include "hunt_log.h"
 
 using namespace std;
 
@@ -12,26 +14,32 @@ using namespace std;
 void onDisplay(void);
 void onKeyboard(unsigned char key, int x, int y);
 void onResize(int w, int h);
-void onMouse(int btn, int state, int x, int y);
-void onMotion(int x, int y);
+//void onMouse(int btn, int state, int x, int y);
+//void onMotion(int x, int y);
 
 // not compiled display list for mouse cursor
 void renderCursor();
 
-bool fullscreen, picked;
+enum game_mode {MODE_HUNT, MODE_TTT} mode = MODE_HUNT;
+typedef enum occup {ANY=0, PLAYER1, PLAYER2} occup_t;
+
+bool fullscreen;
 int x,y,z;
-int cx, cy, cz;
 int old_x, old_y;
+occup_t in_turn;
+
+HuntLog hlog;
 
 // constant viewpoint moving
 int displac_x, displac_y;
 float mytime;
 bool paused;
 const int TIMER_INTERVAL=20;
-const int DISPLACEMENT=120;
+const int DISPLACEMENT=80;
 
 int size=300;
-int bs=size/6;              // block/brick size
+const int n_blks=6;
+int bs=size/n_blks;              // block/brick size
 int bs_half=bs/2;
 int lp = size-bs_half;  // last possible block coordinate
 
@@ -40,8 +48,24 @@ char text_buf[TEXT_MAX];
 
 // window identifier
 static int win;
-int placed[100][3];
-int n_placed=0;
+
+int target[3];
+
+struct timeval tstart, now;
+int secs;
+
+void newTarget(){
+    target[0] = rand() % n_blks;
+    target[1] = rand() % n_blks;
+    target[2] = rand() % n_blks;
+}
+
+struct tick3D {
+    int x, y, z;    // units are blocks
+    int r, g, b;    // color of this tick
+};
+
+occup_t ttt_state[n_blks][n_blks][n_blks];
 
 //---------------------------------------------------------------------
 // Nastaveni souradneho systemu v zavislosti na velikosti okna
@@ -57,6 +81,14 @@ void onResize(int w, int h)
 }
 
 void onTimer(int value){
+    if (hlog.isRunning()){
+        gettimeofday(&now, NULL);
+        secs = now.tv_sec - tstart.tv_sec;
+        glutPostRedisplay();
+    } else {
+        gettimeofday(&tstart, NULL);
+    }
+
     if (!paused) {
         mytime += 0.1;
         displac_x = (int)(sin(mytime) * DISPLACEMENT);
@@ -83,6 +115,18 @@ void renderCursor(){
     glEnd();
 }
 
+void set_plr_color(occup_t plr){
+    switch(plr){
+        case PLAYER1: glColor3f(1,1,0);
+                      break;
+        case PLAYER2: glColor3f(0,1,1);
+                      break;
+        case ANY:     glColor4f(0.2,0.2,0.2,0.3);
+                      break;
+    }
+}
+
+
 void renderGrid(){
     int n_cubes = size/bs;
     glColor4f(0.2,0.2,0.2,0.3);
@@ -92,95 +136,39 @@ void renderGrid(){
             for (int zz=0; zz < n_cubes; zz++){
                 glPushMatrix();
                 glTranslatef(xx*bs, yy*bs, zz*bs);
-                glutWireCube(bs);
+                if (mode == MODE_HUNT &&
+                        target[0] == xx && target[1] == yy && target[2] == zz){
+                    glColor3f(0.1,1.0,0.5);
+                    glutWireCube(bs-1);
+                    glColor4f(0.2,0.2,0.2,0.3);
+                } else if (mode == MODE_TTT){
+                    occup_t plr = ttt_state[xx][yy][zz];
+                    glLineWidth(1);
+                    switch(plr){
+                        case ANY:   glutWireCube(bs);
+                                    break;
+                        case PLAYER1:
+                                    set_plr_color(plr);
+                                    glutWireCube(bs-3);
+                                    glColor4f(0.2,0.2,0.2,0.3);
+                                    break;
+                        case PLAYER2:
+                                    set_plr_color(plr);
+                                    glutWireCube(bs-3);
+                                    glColor4f(0.2,0.2,0.2,0.3);
+                                    break;
+                    }
+                } else {
+                    glutWireCube(bs);
+                }
                 glPopMatrix();
             }
         }
     }
 }
 
-void onMouse(int btn, int state, int curr_x, int curr_y){
-    if (glutGetModifiers() == GLUT_ACTIVE_CTRL){
-        return;
-    }
-    if (btn == 4){
-        y--;
-    }else if(btn == 3){
-        y++;
-    }
-    if (y > 100) y=100;
-    if (y < 0) y=0;
-
-    if (btn == 0 && state == GLUT_DOWN){
-        std::cout << "put\n";
-        if (picked){
-            cx=x; cy=y; cz=z;
-        }
-        picked=!picked;
-
-        int nx,ny,nz;
-        nx = x/(bs+1);
-        ny = y/(bs+1);
-        nz = z/(bs+1);
-
-        nx *= bs;
-        ny *= bs;
-        nz *= bs;
-
-        placed[n_placed][0]=nx;
-        placed[n_placed][1]=ny;
-        placed[n_placed][2]=nz;
-        n_placed++;
-    }
-
-    glutPostRedisplay();
-}
-
-void onMotion(int curr_x, int curr_y){
-
-    int dx= curr_x-old_x;
-    int dy= old_y-curr_y;
-
-    if (glutGetModifiers() == GLUT_ACTIVE_CTRL){
-
-        displac_x -=dx>>3;
-        displac_y -=dy>>3;
-    
-        int limit = 360;
-        if (displac_x > limit) displac_x = limit;
-        if (displac_x < -limit) displac_x = -limit;
-        if (displac_y > limit) displac_y = limit;
-        if (displac_y < -limit) displac_y = -limit;
-
-
-        glutPostRedisplay();
-        return;
-
-    }
-
-
-    if (dx < 0){
-        x += dx;
-    }else{
-        x += dx;
-    }
-    if (dy < 0){
-        z -= dy;
-    }else{
-        z -= dy;
-    }
-    if (x > 100) x=100;
-    if (x < 0) x=0; 
-    if (z > 100) z=100;
-    if (z < 0) z=0; 
-
-    old_y=curr_y;
-    old_x=curr_x;
-    glutPostRedisplay();
-}
-
 void on3Dmotion(int dx, int dy, int dz){
-    fprintf(stderr, "dx:%d, dy:%d, dz: %d\n", dx, dy, dz);
+    //fprintf(stderr, "dx:%d, dy:%d, dz: %d\n", dx, dy, dz);
     x += dx; y += dy; z += dz;
     if (x > size) x=size;
     if (x < 0) x=0; 
@@ -194,31 +182,39 @@ void on3Dmotion(int dx, int dy, int dz){
 void on3Dmouse(int btn, int state){
     if (btn == 0 && state == GLUT_DOWN){
         std::cout << "put\n";
-        if (picked){
-            cx=x; cy=y; cz=z;
-        }
-        picked=!picked;
 
         int nx,ny,nz;
         nx = x/(bs+1);
         ny = y/(bs+1);
         nz = z/(bs+1);
 
-        nx *= bs;
-        ny *= bs;
-        nz *= bs;
+        if (mode == MODE_HUNT){
+            if (nx == target[0] && ny == target[1] && nz == target[2]){
+                hlog.log(correct);
+                newTarget();
+                glutPostRedisplay();
+                return;
+            } else {
+                hlog.log(incorrect);
+                glutPostRedisplay();
+            }
+        }else if (mode == MODE_TTT){
+            occup_t *field = &ttt_state[nx][ny][nz];
+            if (*field == ANY){
+                *field = (occup_t) in_turn;
+                in_turn = (in_turn == PLAYER1) ? PLAYER2 : PLAYER1;
+                glutPostRedisplay();
+            }
+        }
 
-        placed[n_placed][0]=nx;
-        placed[n_placed][1]=ny;
-        placed[n_placed][2]=nz;
-        n_placed++;
-
-        glutPostRedisplay();
     }
 
 }
 
 int main(int argc, char **argv){
+    gettimeofday(&tstart, NULL);
+    gettimeofday(&now, NULL);
+    secs = 0;
 
     glutInit(&argc, argv);
     if (argc != 3){
@@ -276,15 +272,21 @@ int main(int argc, char **argv){
     glEnable(GL_LINE_SMOOTH);   // line antialiasing
     glHint (GL_LINE_SMOOTH_HINT, GL_DONT_CARE);
     // enter the main loop
+    
+    // generate 1st random sample
+    newTarget();
+    in_turn = PLAYER1;
+
     glutMainLoop();
 
     return 0;
 }
 
+
 void printStringUsingGlutBitmapFont(char *string, void *font,
-        int x, int y, float r, float g, float b) {
+        int x, int y, int z, float r, float g, float b) {
     glColor3f(r, g, b);                 // nastaveni barvy vykreslovanych bitmap
-    glRasterPos2i(x, y);                // nastaveni pozice pocatku bitmapy
+    glRasterPos3i(x, y, z);                // nastaveni pozice pocatku bitmapy
     while (*string)                     // projit celym retezcem
         glutBitmapCharacter(font, *string++); // vykresleni jednoho znaku
 }
@@ -296,12 +298,22 @@ void onDisplay(void){
 
     glLineWidth(2);
     glLoadIdentity();
-    gluLookAt ( (size+displac_x)/2, (size+displac_y)/2, 800.0,
+
+
+    glutWireCube(bs);
+
+    gluLookAt ( (size/2+displac_x), (size/2+displac_y), 800.0,
                 size/2, size/2, 0.0,
                 0.0, 1.0, 0.0);
 
+
     glScalef(1,1,1.5);
     renderCursor();
+
+    snprintf(text_buf, TEXT_MAX, "time: %d, cnt: (%d,%d)",
+                            secs, hlog.corrects(), hlog.incorrects());
+    printStringUsingGlutBitmapFont(text_buf,
+            GLUT_BITMAP_8_BY_13,          7, size + 7, 0, 1,0,0);
 
     glColor3f(1,1,1);
     glPushMatrix();
@@ -309,20 +321,6 @@ void onDisplay(void){
     glutWireCube(size);
     glPopMatrix();
     
-    snprintf(text_buf, TEXT_MAX, "[%d,%d,%d]", x, y, z);
-    /*
-    if (picked){
-        int nx,ny,nz;
-        nx = (x+bs_half) > lp ? lp : x+bs_half;
-        ny = (y+bs_half) > lp ? lp : y+bs_half;
-        nz = (z+bs_half) > lp ? lp : z+bs_half;
-        glTranslatef(nx, ny, nz);
-        glColor3f(0.5,0.6,0.7);
-    }else{
-        glTranslatef(cx+bs_half,cy+bs_half,cz+bs_half);
-        glColor3f(0.3,0.3,0.3);
-    }*/
-
     int nx,ny,nz;
     nx = x/(bs+1);
     ny = y/(bs+1);
@@ -333,37 +331,17 @@ void onDisplay(void){
     nz *= bs;
 
 
-    int idx;
-    for (idx=0; idx < n_placed; idx++){
-        if (idx%2 == 0){
-            glColor4f(1,0,0,0.4);
-        }else{
-            glColor4f(0,1,0,0.4);
-        }
-
-        glPushMatrix();
-        glTranslatef(placed[idx][0]+bs_half,
-                placed[idx][1]+bs_half,
-                placed[idx][2]+bs_half);
-        glutWireCube(bs-1);
-        glPopMatrix();
-        if (idx%2 == 0){
-            glColor3f(0,1,0);
-        }else{
-            glColor3f(1,0,0);
-        }
-
-
-    }
-
-
     glPushMatrix();
     glTranslatef(nx+bs_half,ny+bs_half,nz+bs_half);
 
     glLineWidth(5);
+    set_plr_color(in_turn);
     glutWireCube(bs-1);
+
+    snprintf(text_buf, TEXT_MAX, "[%d,%d,%d]", x, y, z);
     printStringUsingGlutBitmapFont(text_buf,
-            GLUT_BITMAP_8_BY_13,          7, 7,0.3,0.3,0.3);
+            GLUT_BITMAP_8_BY_13,          7, 7, 0, 0.3,0.3,0.3);
+
     glPopMatrix();
 
 
@@ -382,8 +360,8 @@ void onKeyboard(unsigned char key,
 
     glutPostRedisplay();
     if(key == 'q' || key == 27){
-        cout << "Got q,so quitting " << endl;
         glutDestroyWindow(win);
+        hlog.save();
         exit(0);
     }
     if (key == 'f'){
@@ -399,5 +377,9 @@ void onKeyboard(unsigned char key,
     }
     if (key == 'p'){
         paused=!paused;
+    }
+    if (key == 'm'){
+        mode = (mode == MODE_HUNT) ? MODE_TTT : MODE_HUNT;
+        glutPostRedisplay();
     }
 }
