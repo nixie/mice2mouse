@@ -56,7 +56,7 @@ void HuntLog::save(){
     // logs/2011-12-03_12:34:11.log
     char filename[30];
     memset(filename, 0x00, 30);
-    strftime(filename, 25, "logs/%F_%H:%M:%S", gmtime(&tstart.tv_sec));
+    strftime(filename, 25, "logs/%F_%H:%M:%S", localtime(&tstart.tv_sec));
     strncpy(filename+strlen(filename), ".log", 5);
     std::cerr << "Saving to file " << filename << std::endl;
 
