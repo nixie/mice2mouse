@@ -13,7 +13,8 @@ class CApp : public CEvent {
         bool            Running;
         bool            Fullscreen;
         SDL_Surface*    Surf_Display;
-        SDL_Joystick *joystick;
+        SDL_Joystick *  joystick;
+        int desktop_w, desktop_h;
 
         // demo app variables
         int x,y,z;

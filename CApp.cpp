@@ -21,9 +21,14 @@ bool CApp::OnInit() {
         cerr << SDL_GetError();
         return false;
     }
- 
+    const SDL_VideoInfo *desktop  = SDL_GetVideoInfo();
+    desktop_w = desktop->current_w;
+    desktop_h = desktop->current_h;
+    std::cerr << "W:" << desktop_w << "H:" << desktop_h << std::endl;
+
     if((Surf_Display = SDL_SetVideoMode(w, h, 0,
-                        SDL_ANYFORMAT | SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_OPENGL)) == NULL) {
+                        SDL_ANYFORMAT | SDL_HWSURFACE |
+                        SDL_DOUBLEBUF | SDL_OPENGL)) == NULL) {
         cerr << SDL_GetError();
         return false;
     }
@@ -134,8 +139,8 @@ void CApp::OnRender() {
     glScalef(1,1,1.5);
     renderCursor();
 
-    //glTranslatef(SIZE/2, SIZE/2, SIZE/2);
-    //glutWireCube(SIZE);
+    glTranslatef(SIZE/2, SIZE/2, SIZE/2);
+    glutWireCube(SIZE);
  
     SDL_GL_SwapBuffers();
 }
@@ -208,13 +213,16 @@ void CApp::OnKeyDown(SDLKey sym, SDLMod mod, Uint16 unicode){
             Fullscreen = !Fullscreen;
             SDL_FreeSurface(Surf_Display);
             if (Fullscreen){
-                Surf_Display = SDL_SetVideoMode(0,0,0,
+                Surf_Display = SDL_SetVideoMode(
+                        desktop_w,desktop_h,0,
                         SDL_DOUBLEBUF|SDL_FULLSCREEN|SDL_HWSURFACE|SDL_OPENGL);
                 SDL_ShowCursor(SDL_DISABLE);
+                glViewport(0, 0, desktop_w, desktop_h);
             } else {
                 Surf_Display = SDL_SetVideoMode(w,h,0,
                         SDL_DOUBLEBUF|SDL_HWSURFACE|SDL_OPENGL);
                 SDL_ShowCursor(SDL_ENABLE);
+                glViewport(0, 0, w, h);
             }
 
             if (Surf_Display == NULL){
@@ -232,7 +240,7 @@ void CApp::OnKeyDown(SDLKey sym, SDLMod mod, Uint16 unicode){
 
 
 int main(int argc, char* argv[]) {
-    //glutInit(&argc, argv);
+    glutInit(&argc, argv);
     CApp theApp;
     return theApp.OnExecute();
 }
