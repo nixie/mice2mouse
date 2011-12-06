@@ -36,3 +36,24 @@ This device reports EV\_ABS values, but values are relative, just because
 we didnt find another way, how to feed GLUT or SDL with 3D events. To test
 this, use the CApp application (coordinate demo in SDL). Before that, start
 uinput daemon ...
+
+### Files
+    CApp.*, CEvent.*  - SDL application which uses m2m joystick created
+                        with uinput
+    mice2mouse.*      - C module, which can translate events from 2 mice
+                        into 1 3D device. Events are fed into client application
+                        using clients callbacks. See mice2mouse.h for more info
+    main.cpp          - application using mice2mouse.o module services
+    hunt_log.*        - class used in main.cpp to harvest statistical data
+                        about clicks timing
+    joytest.c         - uses SDL to get info from system about available
+                        joysticks and theirs options
+
+    delta_correct.py  - input: raw log file from testing application
+                      - output: interclick delay between 2 correct hits
+    filter.py         - linear filter (median, mean, ..) you can use to smooth
+                        output from delta_correct.py
+
+### Testing procedure
+
+TODO
