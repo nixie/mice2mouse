@@ -166,7 +166,8 @@ int m2m_main_loop(){
                     ;
                 } else if (n == -1) {
                     perror("reading device");
-                    exit(1);
+                    exit_ret = 1;
+                    return 0;
                 }
             } else {
                 //fprintf(stderr, "Event here (%d) ..", n);
@@ -306,5 +307,5 @@ int main(int argc, char *argv[]){
     m2m_main_loop();
     m2m_cleanup();
     ioctl(fd_uinput, UI_DEV_DESTROY);
-    return 0;
+    return exit_ret;
 }
