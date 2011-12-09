@@ -298,7 +298,7 @@ void CApp::OnJoyAxis(Uint8 which, Uint8 axis, Sint16 value){
     switch(axis){
         case 0: x += value;
                 break;
-        case 1: y += value;
+        case 1: y += -value;
                 break;
         case 2: z += value;
                 break;

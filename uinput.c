@@ -32,6 +32,23 @@ int m2m_new_x[2], m2m_new_y[2];
 
 char uinput_path[] = "/dev/uinput";
 
+// this can be altered at startup by commandline parameter -m (TODO)
+// explanation:
+//  From 2 mice, there are 4 independet axes to be merged into 3 axes and there
+//  are many possible combinations, how to do that, so some mapping must exist
+//  (and can be changed for everyone's taste).
+//  Each input axes has own position in mapping[] array and value from this
+//  position determines, to which output axis the relative movements should
+//  be sent. Input mice axes placement in mapping is defined:
+//      mapping[0]  ..  mouse A, x axis
+//      mapping[1]  ..  mouse A, y axis
+//      mapping[2]  ..  mouse B, x axis
+//      mapping[3]  ..  mouse B, y axis
+//
+//  For example: mapping[3] == 'z' says: "relative movements from y axis
+//  of mouse B translate to output movements in the axis z ..."
+char mapping[] = "xyxz";    // mouse A controls xy plane and B controls xz plane
+
 void signal_handler(int __attribute__((__unused__))signo){
     exit_flg=1;
 }
@@ -170,12 +187,10 @@ int m2m_main_loop(){
                     return 0;
                 }
             } else {
-                //fprintf(stderr, "Event here (%d) ..", n);
-                // input event read
+                // input event is there
                 new_flg = 1;
                 for (j=0; j < n/(int)sizeof(struct input_event); j++){
                     if (ev[j].type == EV_REL){
-                        //fprintf(stderr, "EV_REL(%d)\n", ev[j].code);
                         switch (ev[j].code) {
                             case REL_X:
                                 m2m_new_x[i] += ev[j].value;
@@ -187,11 +202,10 @@ int m2m_main_loop(){
                                 //fprintf(stderr,"wheel(%d)\n", ev[j].value);
                                 break;
                             default:
-                                //fprintf(stderr,"Unknown EV_REL event code\n");
+                                fprintf(stderr,"Unknown EV_REL event code\n");
                                 ;
                         }
                     } else if (ev[j].type == EV_ABS){
-                        //fprintf(stderr, "EV_ABS\n");
                         switch(ev[j].code) {
                             case ABS_X:
                                 m2m_new_x[i] = ev[j].value;
@@ -200,7 +214,7 @@ int m2m_main_loop(){
                                 m2m_new_y[i] = ev[j].value;
                                 break;
                             default:
-                                //fprintf(stderr,"Unknown EV_ABS event code\n");
+                                fprintf(stderr,"Unknown EV_ABS event code\n");
                                 ;
                         }
                     } else if (ev[j].type == EV_KEY){
@@ -228,21 +242,24 @@ int m2m_main_loop(){
 
         if (new_flg){
             // compare new_* and old_* and generate delta events
-            int dy=0, dx0=0, dx1=0, dx=0, dz=0;
+            int input_delta[4];
 
-            // y and z are not shared by our 2 input devices
-            dy = m2m_new_y[0] - m2m_old_y[0];
-            dy *= -1;
-            dz = m2m_new_y[1] - m2m_old_y[1];
+            input_delta[0] = m2m_new_x[0] - m2m_old_x[0];
+            input_delta[1] = m2m_new_y[0] - m2m_old_y[0];
+            input_delta[2] = m2m_new_x[1] - m2m_old_x[1];
+            input_delta[3] = m2m_new_y[1] - m2m_old_y[1];
 
-            // x is computed by averaging common (mouse dependent) axes
-            dx0 = m2m_new_x[0] - m2m_old_x[0];
-            dx1 = m2m_new_x[1] - m2m_old_x[1];
-            dx = (dx0 + dx1) / 2;
+            // if there are some changes (delta != 0), report them translated
+            if (    input_delta[0] || input_delta[1] ||
+                    input_delta[2] || input_delta[3]) {
 
-            if (dx || dy || dz){
-                int delta[3] = {dx, dy, dz};
-                m2m_send_rel(delta);
+                // translate movements from input axes to output axes
+                int output_delta[3] = {0,0,0};
+                for (int i=0; i<4; i++){
+                    output_delta[mapping[i]-'x'] += input_delta[i];
+                }
+
+                m2m_send_rel(output_delta);
             }
         }
     }
@@ -261,28 +278,28 @@ void m2m_cleanup(){
 }
 
 
-int m2m_mice_init(char *evdev1, char *evdev2){
-    fd_mice[0] = open(evdev1, O_RDONLY);
+int m2m_mice_init(char *evdevA, char *evdevB){
+    fd_mice[0] = open(evdevA, O_RDONLY);
     if (fd_mice[0] == -1){
-        perror("opening first device: ");
+        perror("opening device A: ");
         m2m_cleanup();
         return -1;
     }
-    fd_mice[1] = open(evdev2, O_RDONLY);
+    fd_mice[1] = open(evdevB, O_RDONLY);
     if (fd_mice[1] == -1){
-        perror("opening second device: ");
+        perror("opening device B: ");
         m2m_cleanup();
         return -1;
     }
 
     // set read filedescriptors to be non-blocking
     if (fcntl(fd_mice[0], F_SETFL, O_NONBLOCK) == -1){
-        perror("seting read to be nonblocking on first device: ");
+        perror("seting read to be nonblocking on device A: ");
         m2m_cleanup();
         return -1;
     }
     if (fcntl(fd_mice[1], F_SETFL, O_NONBLOCK) == -1){
-        perror("seting read to be nonblocking on second device: ");
+        perror("seting read to be nonblocking on device B: ");
         m2m_cleanup();
         return -1;
     }
@@ -292,7 +309,7 @@ int m2m_mice_init(char *evdev1, char *evdev2){
 
 int main(int argc, char *argv[]){
     if (argc != 3){
-        fprintf(stderr, "Usage: %s file1 file2\n", argv[0]);
+        fprintf(stderr, "Usage: %s input_dev_A input_dev_B\n", argv[0]);
         return 1;
     }
 
