@@ -3,8 +3,10 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 #include <GL/glut.h>
+#include <cmath>
 #include "CApp.h"
 #include "debug.h"
+
 using namespace std;
 
 
@@ -13,8 +15,24 @@ CApp::CApp() {
     Running = true;
     Fullscreen = false;
     x=y=z=0;
+    last_drawn.x = last_drawn.y = last_drawn.z = 0;
+    rh_left_btn = 0;
+
+    mytime = 0.0;
+    displac_x = displac_y = 0;
+    displacement = 5;
+    time_increment = 0.05;
+    paused = true;
 }
  
+
+void printStringUsingGlutBitmapFont(char *string, void *font,
+        int x, int y, int z, float r, float g, float b) {
+    glColor3f(r, g, b);                 // nastaveni barvy vykreslovanych bitmap
+    glRasterPos3i(x, y, z);                // nastaveni pozice pocatku bitmapy
+    while (*string)                     // projit celym retezcem
+        glutBitmapCharacter(font, *string++); // vykresleni jednoho znaku
+}
 
 bool CApp::OnInit() {
     if(SDL_Init(SDL_INIT_EVERYTHING) < 0) {
@@ -32,9 +50,6 @@ bool CApp::OnInit() {
         cerr << SDL_GetError();
         return false;
     }
-
-    int asda=1;
-    //glutInit(&asda, NULL);
 
     glClearColor(0.0,0.0,0.0,0.0);
     glPointSize(1.0);
@@ -90,7 +105,24 @@ bool CApp::OnInit() {
     }
 
 
+    timer_id = SDL_AddTimer(TIMER_INTERVAL, timer_callback, this);
+
     return true;
+}
+
+unsigned int CApp::timer_callback(unsigned int interval, void *param){
+    DEBUG(cerr << "timer\n");
+
+    CApp *this_ptr = (CApp*) param;
+    if (!this_ptr->paused){
+        this_ptr->mytime += this_ptr->time_increment;
+        this_ptr->displac_x = (sin(this_ptr->mytime) * this_ptr->displacement);
+        this_ptr->displac_y = (cos(this_ptr->mytime) * this_ptr->displacement);
+        DEBUG(cerr << "dx/dy: " << this_ptr->displac_x << " " <<
+                this_ptr->displac_y << "\n");
+    }
+
+    return interval;
 }
 
 void CApp::OnEvent(SDL_Event* Event) {
@@ -136,11 +168,32 @@ void CApp::OnRender() {
                 SIZE/2, SIZE/2, 0.0,
                 0.0, 1.0, 0.0);
 
+
+    snprintf(coords, TEXT_MAX, "[%3d,%3d,%3d]", x, y, z);
+    snprintf(params, TEXT_MAX, "time_inc:%g, ampl:%d",
+                                time_increment, displacement);
+    printStringUsingGlutBitmapFont(coords,
+            GLUT_BITMAP_8_BY_13,          SIZE+60, -70, SIZE, 0.3,0.3,0.3);
+    printStringUsingGlutBitmapFont(params,
+            GLUT_BITMAP_8_BY_13,          SIZE+60, -80, SIZE, 0.3,0.3,0.3);
+
+    glTranslatef(SIZE/2, SIZE/2, 0);
+    glRotatef(displac_x, 1, 0, 0);
+    glRotatef(displac_y, 0, 1, 0);
+    glTranslatef(-SIZE/2, -SIZE/2, 0);
+
     glScalef(1,1,1.5);
     renderCursor();
+    renderDrawing();
 
+    renderGrid();
+
+
+
+    glColor3f(1, 1, 1);
     glTranslatef(SIZE/2, SIZE/2, SIZE/2);
     glutWireCube(SIZE);
+    
  
     SDL_GL_SwapBuffers();
 }
@@ -161,27 +214,82 @@ void CApp::renderCursor(){
     glEnd();
 }
 
-
-/*
-void CApp::renderGrid(){
-    int n_cubes = size/bs;
-    glColor4f(0.2,0.2,0.2,0.3);
-    glLineWidth(1);
-    for (int xx=0; xx < n_cubes; xx++){
-        for (int yy=0; yy < n_cubes; yy++){
-            for (int zz=0; zz < n_cubes; zz++){
-                glPushMatrix();
-                glTranslatef(xx*bs, yy*bs, zz*bs);
-                glutWireCube(bs);
-                glPopMatrix();
-            }
+void CApp::renderDrawing(){
+    glLineWidth(4);
+    glBegin(GL_LINE_STRIP);
+    {
+        for(std::vector<point3D_t *>::iterator it = drawing.begin();
+                it != drawing.end(); it++){
+            point3D_t *ptr = *it;
+            glVertex3f(ptr->x, ptr->y, ptr->z);
         }
     }
-}*/
+    glEnd();
+    glLineWidth(1);
+}
+
+
+void CApp::renderGrid(){
+    int bs = 30;
+    int n_blks = SIZE/bs;
+    glColor4f(0.3,0.3,0.3,0.5);
+    glLineWidth(1);
+    glBegin(GL_LINES); {
+        for (int ii=0; ii < n_blks; ii++){
+            // back
+            glVertex3f(ii*bs, 0, 0);
+            glVertex3f(ii*bs, SIZE, 0);
+            glVertex3f(0, ii*bs, 0);
+            glVertex3f(SIZE, ii*bs, 0);
+            // left & right side
+            glVertex3f(0, ii*bs, 0);
+            glVertex3f(0, ii*bs, SIZE);
+            glVertex3f(0, 0, ii*bs);
+            glVertex3f(0, SIZE, ii*bs);
+            glVertex3f(SIZE, ii*bs, 0);
+            glVertex3f(SIZE, ii*bs, SIZE);
+            glVertex3f(SIZE, 0, ii*bs);
+            glVertex3f(SIZE, SIZE, ii*bs);
+            // top & bottom size
+            glVertex3f(ii*bs,   0, 0);
+            glVertex3f(ii*bs,   0, SIZE);
+            glVertex3f(0,       0, ii*bs);
+            glVertex3f(SIZE,    0,  ii*bs);
+            glVertex3f(ii*bs,   SIZE, 0);
+            glVertex3f(ii*bs,   SIZE, SIZE);
+            glVertex3f(0,       SIZE, ii*bs);
+            glVertex3f(SIZE,    SIZE,  ii*bs);
+        }
+    }
+    glEnd();
+}
+
+
+int dist3D(point3D_t &a, int x2, int y2, int z2){
+    int dx, dy, dz;
+    dx = a.x - x2;
+    dy = a.y - y2;
+    dz = a.z - z2;
+    return (int)sqrt((dx*dx)+(dy*dy)+(dz*dz));
+}
 
 
 void CApp::OnJoyButtonUp(Uint8 which, Uint8 button){
     DEBUG(cerr << "UP which:" << (int)which << " button :" << (int)button << endl);
+    if (button == 3){
+        rh_left_btn = 0;
+    }
+}
+
+void CApp::OnJoyButtonDown(Uint8 which, Uint8 button){
+    DEBUG(cerr << "UP which:" << (int)which << " button :" << (int)button << endl);
+    if (button == 3){
+        rh_left_btn = 1;
+    }
+/*
+    point3D_t *ptr = new point3D_t;
+    ptr->x = x; ptr->y = y; ptr->z = z;
+    drawing.push_back(ptr);*/
 }
 
 void CApp::OnJoyAxis(Uint8 which, Uint8 axis, Sint16 value){
@@ -202,6 +310,19 @@ void CApp::OnJoyAxis(Uint8 which, Uint8 axis, Sint16 value){
     if (y < 0) y=0; 
     if (z > SIZE) z=SIZE;
     if (z < 0) z=0;
+
+    if (rh_left_btn){
+        // we are drawing
+        if (dist3D(last_drawn, x, y, z) > 5){
+            DEBUG(cerr << "painting new point\n");
+            point3D_t *ptr = new point3D_t;
+            last_drawn.x = x; last_drawn.y = y; last_drawn.z = z;
+            ptr->x       = x; ptr->y       = y; ptr->z       = z;
+            drawing.push_back(ptr);
+        }
+    }
+
+
     //glutPostRedisplay();
 
 }
@@ -230,8 +351,30 @@ void CApp::OnKeyDown(SDLKey sym, SDLMod mod, Uint16 unicode){
                 exit(1);
             }
             break;
+        case SDLK_p:
+            paused = !paused;
+            break;
+        case SDLK_c:
+            for(std::vector<point3D_t *>::iterator it = drawing.begin();
+                    it != drawing.end(); it++){
+                delete *it;
+            }
+            drawing.clear();
+            break;
         case SDLK_ESCAPE:
             Running = false;
+            break;
+        case SDLK_UP:
+            displacement++;
+            break;
+        case SDLK_DOWN:
+            displacement--;
+            break;
+        case SDLK_RIGHT:
+            time_increment += 0.01;
+            break;
+        case SDLK_LEFT:
+            time_increment -= 0.01;
             break;
         default:
             break;
