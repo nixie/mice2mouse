@@ -111,7 +111,6 @@ bool CApp::OnInit() {
 }
 
 unsigned int CApp::timer_callback(unsigned int interval, void *param){
-    DEBUG(cerr << "timer\n");
 
     CApp *this_ptr = (CApp*) param;
     if (!this_ptr->paused){
@@ -275,14 +274,12 @@ int dist3D(point3D_t &a, int x2, int y2, int z2){
 
 
 void CApp::OnJoyButtonUp(Uint8 which, Uint8 button){
-    DEBUG(cerr << "UP which:" << (int)which << " button :" << (int)button << endl);
     if (button == 3){
         rh_left_btn = 0;
     }
 }
 
 void CApp::OnJoyButtonDown(Uint8 which, Uint8 button){
-    DEBUG(cerr << "UP which:" << (int)which << " button :" << (int)button << endl);
     if (button == 3){
         rh_left_btn = 1;
     }
@@ -293,7 +290,6 @@ void CApp::OnJoyButtonDown(Uint8 which, Uint8 button){
 }
 
 void CApp::OnJoyAxis(Uint8 which, Uint8 axis, Sint16 value){
-    DEBUG(cerr << "AX axis:" << (int)axis << " value :" << (int)value << endl);
 
     switch(axis){
         case 0: x += value;
@@ -314,17 +310,12 @@ void CApp::OnJoyAxis(Uint8 which, Uint8 axis, Sint16 value){
     if (rh_left_btn){
         // we are drawing
         if (dist3D(last_drawn, x, y, z) > 5){
-            DEBUG(cerr << "painting new point\n");
             point3D_t *ptr = new point3D_t;
             last_drawn.x = x; last_drawn.y = y; last_drawn.z = z;
             ptr->x       = x; ptr->y       = y; ptr->z       = z;
             drawing.push_back(ptr);
         }
     }
-
-
-    //glutPostRedisplay();
-
 }
 
 
