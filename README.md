@@ -29,13 +29,16 @@ and to try usability of such configuration.
   Windows is not supported yet.
 
 ### Uinput
-There is program uinput.c (uses Linux uinput kernel module), which does
+There is a program m2m\_device.c (uses Linux uinput kernel module), which does
 the translation and the output (3D coordinates and 6 buttons) is then
-accessible as a m2m joystick in /dev/input/.
+accessible as a m2m joystick in /dev/input/ (use `sudo evtest` to list
+available input devices).
 This device reports EV\_ABS values, but values are relative, just because
 we didnt find another way, how to feed GLUT or SDL with 3D events. To test
-this, use the CApp application (coordinate demo in SDL). Before that, start
-uinput daemon ...
+this, use the CApp application (in SDL). Before that, create m2m device
+by running the uinput daemon:
+  sudo ./m2m\_device mouseA mouseB
+
 
 ### Files
     CApp.*, CEvent.*  - SDL application which uses m2m joystick created

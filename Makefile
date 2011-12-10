@@ -21,7 +21,7 @@ CEvent.o:	CEvent.cpp CEvent.h
 
 
 clean:
-	rm -f itu_demo joytest uinput CApp
+	rm -f itu_demo joytest m2m_device CApp
 	rm -f *.o
 
 %.o: %.cpp %.h
