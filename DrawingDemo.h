@@ -12,9 +12,10 @@ const int h = 768;
 
 typedef struct point3D {
     int x,y,z;
+    point3D(int _x=0, int _y=0, int _z=0) : x(_x), y(_y), z(_z) {}
 } point3D_t;
 
-class CApp : public CEvent {
+class DrawingDemo : public CEvent {
     private:
         bool            Running;
         bool            Fullscreen;
@@ -47,7 +48,7 @@ class CApp : public CEvent {
         static unsigned int timer_callback(unsigned int interval, void *param);
  
     public:
-        CApp();
+        DrawingDemo();
         int OnExecute();
         virtual void OnJoyButtonUp(Uint8 which, Uint8 button);
         virtual void OnJoyButtonDown(Uint8 which, Uint8 button);
