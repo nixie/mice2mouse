@@ -58,3 +58,8 @@ by running the uinput daemon:
     filter.py         - linear filter (median, mean, ..) you can use to smooth
                         output from delta_correct.py
 
+### Typical usage
+    * start in background m2m\_device daemon (it does the translation), in command line parameters specify 2 input devices, which should be merged.
+    * run some demo application, f.e. DrawingDemo
+
+Note, that itu\_demo uses own translator and so you have to give to it same parameters as to m2m\_device daemon.
