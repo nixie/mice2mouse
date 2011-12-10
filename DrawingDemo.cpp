@@ -15,10 +15,13 @@ DrawingDemo::DrawingDemo() {
     Running = true;
     Fullscreen = false;
     x=y=z=0;
-    rh_left_btn = 0;
+
+    for (int i=0; i<N_BTNS; i++){
+        buttons[i] = false;
+    }
 
     mytime = 0.0;
-    displac_x = displac_y = 0;
+    rot_x = rot_y = rot_z = 0;
     displacement = 5;
     time_increment = 0.05;
     paused = true;
@@ -98,7 +101,7 @@ bool DrawingDemo::OnInit() {
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
 
-    gluPerspective(45, (double)w/(double)h, 0.1, 1000.0);
+    gluPerspective(45, (double)w/(double)h, 0, 1100.0);
 
     glMatrixMode(GL_MODELVIEW);
     glEnable(GL_TEXTURE_2D);
@@ -114,10 +117,9 @@ unsigned int DrawingDemo::timer_callback(unsigned int interval, void *param){
     DrawingDemo *this_ptr = (DrawingDemo*) param;
     if (!this_ptr->paused){
         this_ptr->mytime += this_ptr->time_increment;
-        this_ptr->displac_x = (sin(this_ptr->mytime) * this_ptr->displacement);
-        this_ptr->displac_y = (cos(this_ptr->mytime) * this_ptr->displacement);
-        DEBUG(cerr << "dx/dy: " << this_ptr->displac_x << " " <<
-                this_ptr->displac_y << "\n");
+        this_ptr->rot_x = (sin(this_ptr->mytime) * this_ptr->displacement);
+        this_ptr->rot_y = (cos(this_ptr->mytime) * this_ptr->displacement);
+        this_ptr->rot_z = 0;
     }
 
     return interval;
@@ -175,12 +177,13 @@ void DrawingDemo::OnRender() {
     printStringUsingGlutBitmapFont(params,
             GLUT_BITMAP_8_BY_13,          SIZE+60, -80, SIZE, 0.3,0.3,0.3);
 
-    glTranslatef(SIZE/2, SIZE/2, 0);
-    glRotatef(displac_x, 1, 0, 0);
-    glRotatef(displac_y, 0, 1, 0);
-    glTranslatef(-SIZE/2, -SIZE/2, 0);
+    glTranslatef(SIZE/2, SIZE/2, SIZE/2);
+    glRotatef(rot_x, 1, 0, 0);
+    glRotatef(rot_y, 0, 1, 0);
+    glRotatef(rot_z, 0, 0, 1);
+    glTranslatef(-SIZE/2, -SIZE/2, -SIZE/2);
 
-    glScalef(1,1,1.5);
+    glScalef(1,1,1);
     renderCursor();
     renderDrawing();
 
@@ -295,34 +298,147 @@ int dist3D(point3D_t &a, int x2, int y2, int z2){
     return (int)sqrt((dx*dx)+(dy*dy)+(dz*dz));
 }
 
+int displac_round(float d){
+    if (d >= -45 && d < 45 ){
+        return 0;
+    } else if (d >= 45){
+        return 90;
+    }else{
+        return -90;
+    }
+}
 
 void DrawingDemo::OnJoyButtonUp(Uint8 which, Uint8 button){
-    if (button == 3){
-        rh_left_btn = 0;
+    buttons[button] = false;
 
+    if (button == 3){
         // end this drawing segment
         drawing.push_back(new point3D_t(-1, -1, -1));
+    }
+
+    if (button == 4){
+        rot_x = displac_round(rot_x);
+        rot_y = displac_round(rot_y);
+        rot_z = displac_round(rot_z);
     }
 }
 
 void DrawingDemo::OnJoyButtonDown(Uint8 which, Uint8 button){
-    if (button == 3){
-        rh_left_btn = 1;
-    }
+    buttons[button] = true;
 /*
     point3D_t *ptr = new point3D_t;
     ptr->x = x; ptr->y = y; ptr->z = z;
     drawing.push_back(ptr);*/
 }
 
-void DrawingDemo::OnJoyAxis(Uint8 which, Uint8 axis, Sint16 value){
+const float pi = 3.14159265359;
+const float deg2rad = 360.0/(2*pi);
 
+// rotate vector $vector by multipling it with preinitialized rotation matrix
+void rotate(float vector[3], float angle, int axis){
+    float angle_rad = angle / deg2rad;
+    float _sin = sinf(angle_rad);
+    float _cos = cosf(angle_rad);
+    float x  = vector[0], y=vector[1], z=vector[2];
+     // DEBUG(cerr << "[" << x << " " << y << " " << z << "] rotated by "
+     //       << angle << "(" << angle_rad << "rads):");
     switch(axis){
-        case 0: x += value;
+        case 0:
+            vector[0] = x;
+            vector[1] = y*_cos + z*_sin;
+            vector[2] = z*_cos - y*_sin;
+            break;
+        case 1:
+            vector[0] = x*_cos - z*_sin;
+            vector[1] = y;
+            vector[2] = x*_sin + z*_cos;
+            break;
+        case 2:
+            vector[0] = x*_cos + y*_sin;
+            vector[1] = y*_cos - x*_sin;
+            vector[2] = z;
+            break;
+    }
+
+     // DEBUG(cerr << "[" << vector[0] << " " << vector[1] << " " << vector[2]
+     //       << "]\n");
+}
+
+int DrawingDemo::axis_rot_transform(int axis, int *value){
+    // depending, from what place we are looking on the model, switch axes
+    // from right
+    
+    float axis_vect[3] = {0, 0, 0};
+    axis_vect[axis] = 1;
+    rotate(axis_vect, rot_x, 0);
+    rotate(axis_vect, rot_y, 1);
+    rotate(axis_vect, rot_z, 2);
+
+    // find out, to which axis the original x/y/z axis unit vector has
+    // transformed
+    int ax=0;
+    float max=0;
+    for (int i=0; i < 3; i++){
+        if (fabsf(axis_vect[i]) > max){
+            max = fabsf(axis_vect[i]);
+            ax = i;
+        }
+    }
+
+    if (axis_vect[ax] < 0){
+        *value = -1 * (*value);
+    }
+
+    return ax;
+}
+
+
+void DrawingDemo::OnJoyAxis(Uint8 which, Uint8 axis, Sint16 value){
+    // DEBUG(cerr << "axis:"<< (int)axis << " value:" << (int)value << endl);
+
+    int ax = axis;
+    int delta = (int)value;
+
+    if (paused){
+        // transform axes only in paused mode (no need for translating
+        // if we are looking just in front
+        ax = axis_rot_transform((int)axis, &delta);
+        // DEBUG(cerr << "motion in axis " << (int)axis << "->" << ax << endl);
+    }
+
+    if (axis == 1){
+        delta *= -1;
+    }
+
+
+
+    if (buttons[4]){
+        paused = true;
+        switch(axis){
+            case 2: rot_x += value/3.0;
+                     break;
+            case 0: rot_y += value/3.0;
+                     break;
+            case 1: rot_z += value/3.0;
+                    break;
+        }
+
+        const int max_displac = 90;
+        rot_x = (rot_x > max_displac) ? max_displac : rot_x;
+        rot_x = (rot_x < -max_displac) ? -max_displac : rot_x;
+        rot_y = (rot_y > max_displac) ? max_displac : rot_y;
+        rot_y = (rot_y < -max_displac) ? -max_displac : rot_y;
+        rot_z = (rot_z > max_displac) ? max_displac : rot_z;
+        rot_z = (rot_z < -max_displac) ? -max_displac : rot_z;
+        return;
+    }
+
+    switch(ax){
+        case 0: x += delta;
                 break;
-        case 1: y += -value;
+        case 1: y += delta;
                 break;
-        case 2: z += value;
+        case 2: z += delta;
                 break;
     }
 
@@ -333,7 +449,7 @@ void DrawingDemo::OnJoyAxis(Uint8 which, Uint8 axis, Sint16 value){
     if (z > SIZE) z=SIZE;
     if (z < 0) z=0;
 
-    if (rh_left_btn){
+    if (buttons[3]){
         // we are drawing
         if (dist3D(last_drawn, x, y, z) > 5){
             point3D_t *ptr = new point3D_t(x, y, z);

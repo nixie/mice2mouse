@@ -9,7 +9,7 @@
  
 const int w = 1024;
 const int h = 768;
-
+const int N_BTNS = 6;
 typedef struct point3D {
     int x,y,z;
     point3D(int _x=0, int _y=0, int _z=0) : x(_x), y(_y), z(_z) {}
@@ -25,8 +25,8 @@ class DrawingDemo : public CEvent {
 
         // demo app variables
         int x,y,z;
-        static const int SIZE=300;
-        bool rh_left_btn; // right hand, left button pressed
+        static const int SIZE=400;
+        bool buttons[N_BTNS];    // 2 mice, 3 buttons for each mouse
         std::vector<point3D_t*> drawing;
         point3D_t last_drawn;
         SDL_TimerID timer_id;
@@ -38,7 +38,7 @@ class DrawingDemo : public CEvent {
 
         // periodic model moving
         bool paused;
-        float displac_x, displac_y;
+        float rot_x, rot_y, rot_z;
         float mytime;
         int displacement;
         float time_increment;
@@ -46,7 +46,7 @@ class DrawingDemo : public CEvent {
 
 
         static unsigned int timer_callback(unsigned int interval, void *param);
- 
+        int axis_rot_transform(int axis, int *value);
     public:
         DrawingDemo();
         int OnExecute();

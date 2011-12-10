@@ -83,6 +83,16 @@ joytest: joytest.c
 # SDL version
 DrawingDemo: CEvent.o DrawingDemo.cpp DrawingDemo.h
 	$(CC) $(CFLAGS) $(LDFLAGS) `sdl-config --libs --cflags` $^ -o $@
+
+BaseApp.o: BaseApp.cpp BaseApp.h
+	$(CC) -c $(CFLAGS) `sdl-config --cflags` BaseApp.cpp -o $@
+
+BaseApp_main: BaseApp.o CEvent.o BaseApp_main.cpp
+	$(CC) $(CFLAGS) $(LDFLAGS) `sdl-config --libs --cflags` $^ -o $@
+
+DA: DA.cpp DA.h BaseApp.o CEvent.o 
+	$(CC) $(CFLAGS) $(LDFLAGS) `sdl-config --libs --cflags` $^ -o $@
+
 CEvent.o:	CEvent.cpp CEvent.h
 	$(CC) -c $(CFLAGS) `sdl-config --cflags` $< -o $@
 
