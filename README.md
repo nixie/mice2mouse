@@ -54,6 +54,3 @@ uinput daemon ...
     filter.py         - linear filter (median, mean, ..) you can use to smooth
                         output from delta_correct.py
 
-### Testing procedure
-
-TODO
