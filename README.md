@@ -38,7 +38,7 @@ we didnt find another way, how to feed GLUT or SDL with 3D events. To test
 this, use the CApp application (in SDL). Before that, create m2m device
 by running the uinput daemon:
 
-    sudo ./m2m\_device mouseA mouseB
+    sudo ./m2m_device mouseA mouseB
 
 
 ### Files
