@@ -58,7 +58,7 @@ ALLFILES=$(NAME).tex $(NAME).bib Makefile czechiso.bst
 CLEAN=
 
 ifeq ($(CLEANBIN), enabled)
-CLEAN+=itu_demo joytest m2m_device DrawingDemo *.o
+CLEAN+=itu_demo joytest m2m_device DemoDrawing *.o DemoCursor
 endif
 ifeq ($(CLEANBACKUP), enabled)
 CLEAN+=*~
@@ -71,7 +71,7 @@ endif
 # MAKE
 # ---------------------------------------------------------
 
-$(NAME): itu_demo DrawingDemo m2m_device joytest
+$(NAME): itu_demo DemoDrawing m2m_device joytest
 
 # GLUT version
 itu_demo: main.cpp mice2mouse.o hunt_log.o
@@ -81,16 +81,13 @@ joytest: joytest.c
 	$(CC) $(CFLGS) $(LDFLAGS) `sdl-config --libs --cflags` $^ -o $@
 
 # SDL version
-DrawingDemo: CEvent.o BaseApp.o DrawingDemo.cpp DrawingDemo.h
-	$(CC) $(CFLAGS) $(LDFLAGS) `sdl-config --libs --cflags` $^ -o $@
-
 BaseApp.o: BaseApp.cpp BaseApp.h
 	$(CC) -c $(CFLAGS) `sdl-config --cflags` BaseApp.cpp -o $@
 
-BaseApp_main: BaseApp.o CEvent.o BaseApp_main.cpp
+DemoDrawing: CEvent.o BaseApp.o DemoDrawing.cpp DemoDrawing.h
 	$(CC) $(CFLAGS) $(LDFLAGS) `sdl-config --libs --cflags` $^ -o $@
 
-DA: DA.cpp DA.h BaseApp.o CEvent.o 
+DemoCursor: BaseApp.o CEvent.o DemoCursor.cpp
 	$(CC) $(CFLAGS) $(LDFLAGS) `sdl-config --libs --cflags` $^ -o $@
 
 CEvent.o:	CEvent.cpp CEvent.h

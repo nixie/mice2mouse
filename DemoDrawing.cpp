@@ -1,4 +1,4 @@
-#include "DrawingDemo.h"
+#include "DemoDrawing.h"
 #include <vector>
 #include <cmath>
 #include <SDL.h>
