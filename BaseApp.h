@@ -14,6 +14,10 @@ typedef struct point3D {
     point3D(int _x=0, int _y=0, int _z=0) : x(_x), y(_y), z(_z) {}
 } point3D_t;
 
+
+void printStringUsingGlutBitmapFont(char *string, void *font,
+        int x, int y, int z, float r, float g, float b);
+
 class BaseApp : public CEvent {
     private:
         bool            Running;
@@ -26,21 +30,21 @@ class BaseApp : public CEvent {
     public:
         int x,y,z;
         bool buttons[N_BTNS];    // 2 mice, 3 buttons for each mouse
-    private:
-        static const int SIZE=400;
-        SDL_TimerID timer_id;
-        static const int TIMER_INTERVAL = 20;
-
+        static const int SIZE=390;
         static const int TEXT_MAX = 200;
         char coords[TEXT_MAX];
         char params[TEXT_MAX];
+        float time_increment;
+        int displacement;
+    private:
+        SDL_TimerID timer_id;
+        static const int TIMER_INTERVAL = 20;
+
 
         // periodic model moving
         bool paused;
         float rot_x, rot_y, rot_z;
         float mytime;
-        int displacement;
-        float time_increment;
 
 
 
@@ -57,7 +61,10 @@ class BaseApp : public CEvent {
         virtual void renderCursor();
         virtual void renderGrid();
         virtual void renderApp();
+        virtual void renderApp_first(){}
 
+        virtual void appInit(){}
+        virtual void appTimer(){}
         virtual void appBtnUp(int button){}
         virtual void appBtnDown(int button){}
         virtual void appMotion(int axis, int delta){}

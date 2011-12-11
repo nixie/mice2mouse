@@ -1,3 +1,6 @@
+#ifndef _DEMO_DRAWING_H_
+#define _DEMO_DRAWING_H_
+
 #include "BaseApp.h"
 #include "CEvent.h"
 
@@ -14,3 +17,5 @@ class DrawingApp : public BaseApp {
         virtual void appKeyDown(SDLKey sym);
         
 };
+
+#endif

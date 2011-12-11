@@ -109,6 +109,8 @@ bool BaseApp::OnInit() {
 
     timer_id = SDL_AddTimer(TIMER_INTERVAL, timer_callback, this);
 
+    appInit();
+
     return true;
 }
 
@@ -124,6 +126,8 @@ unsigned int BaseApp::timer_callback(unsigned int interval, void *param){
         this_ptr->rot_y = (cos(this_ptr->mytime) * this_ptr->displacement);
         this_ptr->rot_z = 0;
     }
+
+    this_ptr->appTimer();
 
     return interval;
 }
@@ -171,14 +175,15 @@ void BaseApp::OnRender() {
                 SIZE/2, SIZE/2, 0.0,
                 0.0, 1.0, 0.0);
 
+    renderApp_first();
 
     snprintf(coords, TEXT_MAX, "[%3d,%3d,%3d]", x, y, z);
     snprintf(params, TEXT_MAX, "time_inc:%g, ampl:%d",
                                 time_increment, displacement);
     printStringUsingGlutBitmapFont(coords,
-            GLUT_BITMAP_8_BY_13,          SIZE+60, -70, SIZE, 0.3,0.3,0.3);
+            GLUT_BITMAP_8_BY_13,          SIZE+5, -0, SIZE, 0.3,0.3,0.3);
     printStringUsingGlutBitmapFont(params,
-            GLUT_BITMAP_8_BY_13,          SIZE+60, -80, SIZE, 0.3,0.3,0.3);
+            GLUT_BITMAP_8_BY_13,          SIZE+5, -10, SIZE, 0.3,0.3,0.3);
 
     glTranslatef(SIZE/2, SIZE/2, SIZE/2);
     glRotatef(rot_x, 1, 0, 0);
@@ -188,10 +193,10 @@ void BaseApp::OnRender() {
 
     glScalef(1,1,1);
     renderCursor();
-    renderApp();
 
     renderGrid();
 
+    renderApp();
 
 
     glColor3f(1, 1, 1);
@@ -237,8 +242,8 @@ void BaseApp::renderCursor(){
 
 
 void BaseApp::renderGrid(){
-    int bs = 30;
-    int n_blks = SIZE/bs;
+    int n_blks = 6;
+    int bs = SIZE/n_blks;
     glColor4f(0.3,0.3,0.3,0.5);
     glLineWidth(1);
     glBegin(GL_LINES); {
