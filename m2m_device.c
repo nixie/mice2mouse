@@ -17,7 +17,7 @@
 #include <errno.h>
 #include <GL/glut.h>
 
-#define ERR(ret) if (ret == -1) { perror(NULL); exit(EXIT_FAILURE); }
+#define ERR(ret) if (ret == -1) { fprintf(stderr, "At line %d :", __LINE__); perror(NULL); exit(EXIT_FAILURE); }
 
 int fd_uinput;
 int fd_mice[2];
