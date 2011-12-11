@@ -160,6 +160,7 @@ int BaseApp::OnExecute() {
         OnRender();
     }
  
+    appExit();
     OnCleanup();
  
     return 0;

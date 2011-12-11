@@ -33,6 +33,7 @@ class HuntApp : public BaseApp {
         virtual void renderApp_first();
 
         virtual void appInit();
+        virtual void appExit();
         virtual void appTimer();
         virtual void appBtnUp(int button);
         virtual void appBtnDown(int button);

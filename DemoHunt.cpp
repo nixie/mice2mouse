@@ -28,6 +28,10 @@ void HuntApp::renderApp_first(){
 
 }
 
+void HuntApp::appExit(){
+    hlog.save();
+}
+
 void HuntApp::renderApp(){
 
     
