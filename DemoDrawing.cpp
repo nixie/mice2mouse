@@ -8,12 +8,32 @@
 #include <iostream>
 
 
+char *drawing_help = 
+"For the first time, click with some mouse button\n"
+"to define which button you will be using for painting.\n"
+"Than - just paint ... ;)\n"
+"\nUse \"c\" key to erase any drawing";;
+
 int dist3D(point3D_t &a, int x2, int y2, int z2){
     int dx, dy, dz;
     dx = a.x - x2;
     dy = a.y - y2;
     dz = a.z - z2;
     return (int)sqrt((dx*dx)+(dy*dy)+(dz*dz));
+}
+
+char* DrawingApp::appHelp(){
+    return drawing_help;
+}
+
+void DrawingApp::renderApp_first(){
+
+    if (painting_btn == -1){
+        printStringUsingGlutBitmapFont(
+                "Please, press the button of your choice\n"
+                "You wish to use for painting ...\n",
+                GLUT_BITMAP_TIMES_ROMAN_24, 0, SIZE+30, 0, 1,0,0);
+    }
 }
 
 void DrawingApp::renderApp(){
@@ -37,17 +57,24 @@ void DrawingApp::renderApp(){
     glLineWidth(1);
 }
 
+void DrawingApp::appInit(){
+    painting_btn = -1;
+}
+
 void DrawingApp::appBtnUp(int button){
-    if (button == 3){
+    if (button == painting_btn){
         // end this drawing segment
         drawing.push_back(new point3D_t(-1, -1, -1));
     }
-
-
 }
-void DrawingApp::appBtnDown(int button){ }
+
+void DrawingApp::appBtnDown(int button){
+    if (painting_btn == -1 && !(button == 2 || button ==5)){
+        painting_btn = button;
+    }
+}
 void DrawingApp::appMotion(int axis, int delta){
-    if (buttons[3]){
+    if (painting_btn != -1 && buttons[painting_btn]){
         // we are drawing
         if (dist3D(last_drawn, x, y, z) > 5){
             point3D_t *ptr = new point3D_t(x, y, z);
@@ -63,6 +90,7 @@ void DrawingApp::appKeyDown(SDLKey sym){
             delete *it;
         }
         drawing.clear();
+        painting_btn = -1;
     }
 }
 

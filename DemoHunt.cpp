@@ -23,13 +23,24 @@ void HuntApp::renderApp_first(){
     snprintf(text_buf, TEXT_MAX, "time: %d, cnt: (%d,%d)",
                             secs, hlog.corrects(), hlog.incorrects());
     printStringUsingGlutBitmapFont(text_buf,
-            GLUT_BITMAP_8_BY_13,          -70,  SIZE+10, SIZE, 1,0,0);
+            GLUT_BITMAP_TIMES_ROMAN_24,          -60,  SIZE-10, SIZE, 1,0,0);
+
+    if (chosen_btn == -1){
+        printStringUsingGlutBitmapFont(
+                "Please, press the button of your choice\n"
+                "You wish to use to catch the candies ...\n",
+                GLUT_BITMAP_TIMES_ROMAN_24, 0, SIZE+30, 0, 1,0,0);
+    }
 
 
 }
 
 void HuntApp::appExit(){
     hlog.save();
+}
+
+char* HuntApp::appHelp(){
+    return "Try to collect all the candies in a shortest time!";
 }
 
 void HuntApp::renderApp(){
@@ -88,8 +99,11 @@ void HuntApp::renderApp(){
 void HuntApp::appBtnUp(int button){
 }
 void HuntApp::appBtnDown(int button){
+    if (chosen_btn == -1 && !(button == 2 || button == 5)){
+        chosen_btn = button;
+    }
 
-    if (button == 3){
+    if (button == chosen_btn){
         int nx,ny,nz;
         nx = x/(bs+1);
         ny = y/(bs+1);
@@ -128,6 +142,7 @@ void HuntApp::appInit(){
     gettimeofday(&now, NULL);
     secs = 0;
     newTarget();
+    chosen_btn=-1;
 }
 
 int main(int argc, char* argv[]) {

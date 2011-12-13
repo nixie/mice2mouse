@@ -9,6 +9,11 @@
 #include <GL/glut.h>
 #include <iostream>
 
+char *TTTApp::appHelp(){
+    return 
+        "This is a Tic-Tac-Toe demo, explore 3D gaming now!\n"
+        "By pressing key \"c\" you can clean the playground.\n";
+}
 
 int dist3D(point3D_t &a, int x2, int y2, int z2){
     int dx, dy, dz;
@@ -91,7 +96,12 @@ void TTTApp::appBtnUp(int button){
 }
 void TTTApp::appBtnDown(int button){
 
-    if (button == 3){
+    if (chosen_btn == -1 && !(button == 2 || button == 5)){
+        chosen_btn = button;
+        return;
+    }
+
+    if (button == chosen_btn){
         int nx,ny,nz;
         nx = x/(bs+1);
         ny = y/(bs+1);
@@ -109,12 +119,25 @@ void TTTApp::appMotion(int axis, int delta){ }
 void TTTApp::appKeyDown(SDLKey sym){
     if (sym == SDLK_c){
         memset(&ttt_state, ANY, sizeof(ttt_state));
+        chosen_btn = -1;
     }
 }
 
 void TTTApp::appInit(){
     memset(&ttt_state, ANY, sizeof(ttt_state));
     in_turn = PLAYER1;
+    chosen_btn = -1;
+}
+
+
+void TTTApp::renderApp_first(){
+
+    if (chosen_btn == -1){
+        printStringUsingGlutBitmapFont(
+                "Please, press the button of your choice\n"
+                "You wish to use for painting ...\n",
+                GLUT_BITMAP_TIMES_ROMAN_24, 0, SIZE+30, 0, 1,0,0);
+    }
 }
 
 int main(int argc, char* argv[]) {

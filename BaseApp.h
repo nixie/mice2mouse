@@ -18,6 +18,20 @@ typedef struct point3D {
 void printStringUsingGlutBitmapFont(char *string, void *font,
         int x, int y, int z, float r, float g, float b);
 
+static char help[] = 
+"Useful keys:\n"
+"Esc - quit application\n"
+"  f - toggle fullscreen\n"
+"  h - toggle this help\n"
+"  l - switch mouse layout\n"
+"  p - toggle automove mode (Play)\n"
+"  c - center view\n"
+"   Right  - increase autmove speed\n"
+"   Left   - decrease autmove speed\n"
+"   Up     - increase autmove amplitude\n"
+"   Down   - decrease autmove amplitude\n";
+
+
 class BaseApp : public CEvent {
     private:
         bool            Running;
@@ -36,6 +50,7 @@ class BaseApp : public CEvent {
         char params[TEXT_MAX];
         float time_increment;
         int displacement;
+        bool layout_xzxy;
     private:
         SDL_TimerID timer_id;
         static const int TIMER_INTERVAL = 20;
@@ -43,7 +58,9 @@ class BaseApp : public CEvent {
 
         // periodic model moving
         bool paused;
+        bool showhelp;
         float rot_x, rot_y, rot_z;
+        float spinrot_x, spinrot_y, spinrot_z;
         float mytime;
 
 
@@ -64,6 +81,7 @@ class BaseApp : public CEvent {
         virtual void renderApp_first(){}
 
         virtual void appInit(){}
+        virtual char* appHelp(){return "";}
         virtual void appExit(){}
         virtual void appTimer(){}
         virtual void appBtnUp(int button){}

@@ -22,9 +22,12 @@ BaseApp::BaseApp() {
 
     mytime = 0.0;
     rot_x = rot_y = rot_z = 0;
+    spinrot_x = spinrot_y = spinrot_z = 0;
     displacement = 5;
+    layout_xzxy = false;
     time_increment = 0.05;
-    paused = true;
+    paused = false;
+    showhelp = true;
 }
  
 
@@ -32,8 +35,20 @@ void printStringUsingGlutBitmapFont(char *string, void *font,
         int x, int y, int z, float r, float g, float b) {
     glColor3f(r, g, b);                 // nastaveni barvy vykreslovanych bitmap
     glRasterPos3i(x, y, z);                // nastaveni pozice pocatku bitmapy
-    while (*string)                     // projit celym retezcem
+    int line=0;
+    while (*string){                     // projit celym retezcem
+        if (*string == '\n'){
+            line++;
+            string++;
+            if (font == GLUT_BITMAP_TIMES_ROMAN_24){
+                glRasterPos3i(x, y-line*20, z);
+            }else{
+                glRasterPos3i(x, y-line*10, z);
+            }
+            continue;
+        }
         glutBitmapCharacter(font, *string++); // vykresleni jednoho znaku
+    }
 }
 
 bool BaseApp::OnInit() {
@@ -122,9 +137,9 @@ unsigned int BaseApp::timer_callback(unsigned int interval, void *param){
     BaseApp *this_ptr = (BaseApp*) param;
     if (!this_ptr->paused){
         this_ptr->mytime += this_ptr->time_increment;
-        this_ptr->rot_x = (sin(this_ptr->mytime) * this_ptr->displacement);
-        this_ptr->rot_y = (cos(this_ptr->mytime) * this_ptr->displacement);
-        this_ptr->rot_z = 0;
+        this_ptr->spinrot_x = (sin(this_ptr->mytime) * this_ptr->displacement);
+        this_ptr->spinrot_y = (cos(this_ptr->mytime) * this_ptr->displacement);
+        this_ptr->spinrot_z = (cos(this_ptr->mytime) * this_ptr->displacement);
     }
 
     this_ptr->appTimer();
@@ -176,10 +191,22 @@ void BaseApp::OnRender() {
                 SIZE/2, SIZE/2, 0.0,
                 0.0, 1.0, 0.0);
 
+    
+    if (showhelp){
+        // display general help and also apṕlication specific help
+        
+        printStringUsingGlutBitmapFont(help, GLUT_BITMAP_9_BY_15,
+                SIZE/2-100, SIZE-100, SIZE, 0, 1, 0);
+
+        printStringUsingGlutBitmapFont(appHelp(), GLUT_BITMAP_9_BY_15,
+                SIZE/2-100, SIZE/2-20, SIZE, 1, 1, 0);
+    }
+
+
     renderApp_first();
 
     snprintf(coords, TEXT_MAX, "[%3d,%3d,%3d]", x, y, z);
-    snprintf(params, TEXT_MAX, "time_inc:%g, ampl:%d",
+    snprintf(params, TEXT_MAX, "speed:%g, ampl:%d",
                                 time_increment, displacement);
     printStringUsingGlutBitmapFont(coords,
             GLUT_BITMAP_8_BY_13,          SIZE+5, -0, SIZE, 0.3,0.3,0.3);
@@ -187,6 +214,9 @@ void BaseApp::OnRender() {
             GLUT_BITMAP_8_BY_13,          SIZE+5, -10, SIZE, 0.3,0.3,0.3);
 
     glTranslatef(SIZE/2, SIZE/2, SIZE/2);
+    glRotatef(spinrot_x, 1, 0, 0);
+    glRotatef(spinrot_y, 0, 1, 0);
+    glRotatef(spinrot_z, 0, 0, 1);
     glRotatef(rot_x, 1, 0, 0);
     glRotatef(rot_y, 0, 1, 0);
     glRotatef(rot_z, 0, 0, 1);
@@ -291,13 +321,8 @@ int displac_round(float d){
 
 void BaseApp::OnJoyButtonUp(Uint8 which, Uint8 button){
     buttons[button] = false;
+    showhelp = false;
     appBtnUp((int)button);
-
-    if (button == 4){
-        rot_x = displac_round(rot_x);
-        rot_y = displac_round(rot_y);
-        rot_z = displac_round(rot_z);
-    }
 }
 
 void BaseApp::OnJoyButtonDown(Uint8 which, Uint8 button){
@@ -374,7 +399,7 @@ void BaseApp::OnJoyAxis(Uint8 which, Uint8 axis, Sint16 value){
     int ax = axis;
     int delta = (int)value;
 
-    if (paused){
+    if (!(buttons[2] || buttons[5])){
         // transform axes only in paused mode (no need for translating
         // if we are looking just in front
         ax = axis_rot_transform((int)axis, &delta);
@@ -387,8 +412,8 @@ void BaseApp::OnJoyAxis(Uint8 which, Uint8 axis, Sint16 value){
 
 
 
-    if (buttons[4]){
-        paused = true;
+    if (buttons[2] || buttons[5]){
+        // paused = true;
         switch(axis){
             case 2: rot_x += value/3.0;
                      break;
@@ -411,9 +436,15 @@ void BaseApp::OnJoyAxis(Uint8 which, Uint8 axis, Sint16 value){
     switch(ax){
         case 0: x += delta;
                 break;
-        case 1: y += delta;
+        case 1: if (layout_xzxy)
+                    z -= delta;
+                else
+                    y += delta;
                 break;
-        case 2: z += delta;
+        case 2: if (layout_xzxy)
+                    y -= delta;
+                else
+                    z += delta;
                 break;
     }
 
@@ -454,6 +485,20 @@ void BaseApp::OnKeyDown(SDLKey sym, SDLMod mod, Uint16 unicode){
             break;
         case SDLK_p:
             paused = !paused;
+            break;
+            
+        case SDLK_c:
+            // center view
+            rot_x = displac_round(rot_x);
+            rot_y = displac_round(rot_y);
+            rot_z = displac_round(rot_z);
+            spinrot_x = spinrot_y = spinrot_z = 0;
+            break;
+        case SDLK_h:
+            showhelp = !showhelp;
+            break;
+        case SDLK_l:
+            layout_xzxy = !layout_xzxy;
             break;
         case SDLK_ESCAPE:
             Running = false;

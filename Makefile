@@ -106,7 +106,14 @@ CEvent.o:	CEvent.cpp CEvent.h
 # RUN
 # ---------------------------------------------------------
 
-run:
+run: $(NAME)
+	sudo ./DemoCursor
+	sudo ./DemoDrawing
+	sudo ./DemoTTT
+	sudo ./DemoHunt
+	echo "Dikec!"
+
+
 
 # ---------------------------------------------------------
 # CLEAN
