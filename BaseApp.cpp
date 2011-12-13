@@ -399,12 +399,12 @@ void BaseApp::OnJoyAxis(Uint8 which, Uint8 axis, Sint16 value){
     int ax = axis;
     int delta = (int)value;
 
-    if (!(buttons[2] || buttons[5])){
+    //if (!(buttons[2] || buttons[5])){
         // transform axes only in paused mode (no need for translating
         // if we are looking just in front
         ax = axis_rot_transform((int)axis, &delta);
         // DEBUG(cerr << "motion in axis " << (int)axis << "->" << ax << endl);
-    }
+    //}
 
     if (axis == 1){
         delta *= -1;
@@ -433,19 +433,26 @@ void BaseApp::OnJoyAxis(Uint8 which, Uint8 axis, Sint16 value){
         return;
     }
 
-    switch(ax){
-        case 0: x += delta;
-                break;
-        case 1: if (layout_xzxy)
-                    z -= delta;
-                else
-                    y += delta;
-                break;
-        case 2: if (layout_xzxy)
-                    y -= delta;
-                else
-                    z += delta;
-                break;
+    cerr << "ax: " << ax << endl;
+
+    if (layout_xzxy){
+        switch(ax){
+            case 0: x += delta;
+                    break;
+            case 1: z -= delta;
+                    break;
+            case 2: y -= delta;
+                    break;
+        }
+    }else{
+        switch(ax){
+            case 0: x += delta;
+                    break;
+            case 1: y += delta;
+                    break;
+            case 2: z += delta;
+                    break;
+        }
     }
 
     if (x > SIZE) x=SIZE;
