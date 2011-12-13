@@ -113,6 +113,8 @@ run: $(NAME)
 	sudo ./DemoHunt
 	echo "Dikec!"
 
+doc:
+	make -C doc;
 
 
 # ---------------------------------------------------------
