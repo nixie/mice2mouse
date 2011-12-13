@@ -388,7 +388,13 @@ int BaseApp::axis_rot_transform(int axis, int *value){
         *value = -1 * (*value);
     }
 
-    return ax;
+    if (layout_xzxy && ax == 1){
+        return 2;
+    }else if (layout_xzxy && ax == 2){
+        return 1;
+    }else{
+        return ax;
+    }
 }
 
 
@@ -433,17 +439,17 @@ void BaseApp::OnJoyAxis(Uint8 which, Uint8 axis, Sint16 value){
         return;
     }
 
-    cerr << "ax: " << ax << endl;
+    cerr << "axis " << (int)axis << " mapped to: " << ax << endl;
 
-    if (layout_xzxy){
-        switch(ax){
-            case 0: x += delta;
-                    break;
-            case 1: z -= delta;
-                    break;
-            case 2: y -= delta;
-                    break;
-        }
+    switch(ax){
+        case 0: x += delta;
+                break;
+        case 1: y += delta;
+                break;
+        case 2: z += delta;
+                break;
+    }
+    /*
     }else{
         switch(ax){
             case 0: x += delta;
@@ -453,7 +459,7 @@ void BaseApp::OnJoyAxis(Uint8 which, Uint8 axis, Sint16 value){
             case 2: z += delta;
                     break;
         }
-    }
+    }*/
 
     if (x > SIZE) x=SIZE;
     if (x < 0) x=0; 
