@@ -62,9 +62,18 @@ void HuntApp::renderApp(){
 
     glLineWidth(1);
     glColor3f(1,0,0);
-    glutWireCube(bs-4);
-    glPopMatrix();
 
+    if (target[0] == (x/(bs+1)) &&
+            target[1] == (y/(bs+1)) &&
+            target[2] == (z/(bs+1))){
+        glColor3f(1,1,1);
+        glLineWidth(4);
+    }
+        
+    glutWireCube(bs-4);
+    glLineWidth(1);
+    glColor3f(1,0,0);
+    glPopMatrix();
 
 
 
