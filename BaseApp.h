@@ -18,20 +18,6 @@ typedef struct point3D {
 void printStringUsingGlutBitmapFont(char *string, void *font,
         int x, int y, int z, float r, float g, float b);
 
-static char help[] = 
-"Useful keys:\n"
-"Esc - quit application\n"
-"  f - toggle fullscreen\n"
-"  h - toggle this help\n"
-"  l - switch mouse layout\n"
-"  p - toggle automove mode (Play)\n"
-"  c - center view\n"
-"   Right  - increase autmove speed\n"
-"   Left   - decrease autmove speed\n"
-"   Up     - increase autmove amplitude\n"
-"   Down   - decrease autmove amplitude\n";
-
-
 class BaseApp : public CEvent {
     private:
         bool            Running;
@@ -81,7 +67,7 @@ class BaseApp : public CEvent {
         virtual void renderApp_first(){}
 
         virtual void appInit(){}
-        virtual char* appHelp(){return "";}
+        virtual char* appHelp();
         virtual void appExit(){}
         virtual void appTimer(){}
         virtual void appBtnUp(int button){}

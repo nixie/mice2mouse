@@ -26,10 +26,11 @@ void HuntApp::renderApp_first(){
             GLUT_BITMAP_TIMES_ROMAN_24,          -60,  SIZE-10, SIZE, 1,0,0);
 
     if (chosen_btn == -1){
-        printStringUsingGlutBitmapFont(
+        static char text[] = 
                 "Please, press the button of your choice\n"
-                "You wish to use to catch the candies ...\n",
-                GLUT_BITMAP_TIMES_ROMAN_24, 0, SIZE+30, 0, 1,0,0);
+                "You wish to use to catch the candies ...\n";
+        printStringUsingGlutBitmapFont(
+                text, GLUT_BITMAP_TIMES_ROMAN_24, 0, SIZE+30, 0, 1,0,0);
     }
 
 
@@ -40,7 +41,8 @@ void HuntApp::appExit(){
 }
 
 char* HuntApp::appHelp(){
-    return "Try to collect all the candies in a shortest time!";
+    static char text[] = "Try to collect all the candies in a shortest time!";
+    return text;
 }
 
 void HuntApp::renderApp(){

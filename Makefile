@@ -28,7 +28,7 @@ NAME=xpauli00
 # parametry prekladu
 CC=g++
 LDFLAGS=-lglut -lGLU
-CFLAGS=-Wall -pedantic -W -g
+CFLAGS=-Wall -pedantic -W -g  -Wno-unused
 #CFLAGS=-Wall -pedantic -W -g -DNDEBUG
 SRC=*.cpp *.h Makefile
 
@@ -71,7 +71,7 @@ endif
 # MAKE
 # ---------------------------------------------------------
 
-$(NAME): itu_demo DemoDrawing m2m_device joytest DemoHunt DemoTTT DemoCursor
+$(NAME): m2m_device joytest itu_demo DemoDrawing DemoHunt DemoTTT DemoCursor
 
 # GLUT version
 itu_demo: main.cpp mice2mouse.o hunt_log.o

@@ -5,7 +5,7 @@
 class CursorDemo : public BaseApp {
     public:
         virtual char *appHelp(){
-            return 
+            static char text[] = 
                 "Welcome to m2m introduction demo :)\n"
                 "You can press down the mouse middle\n"
                 "button and rotate with space beeing\n"
@@ -13,6 +13,7 @@ class CursorDemo : public BaseApp {
                 "After You are done with exploration,\n"
                 "press Escape, next demo is waiting\n"
                 "for You ...";
+            return text;
         }
 
 };

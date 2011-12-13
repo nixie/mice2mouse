@@ -10,9 +10,10 @@
 #include <iostream>
 
 char *TTTApp::appHelp(){
-    return 
+    static char text[] =
         "This is a Tic-Tac-Toe demo, explore 3D gaming now!\n"
         "By pressing key \"c\" you can clean the playground.\n";
+    return text;
 }
 
 int dist3D(point3D_t &a, int x2, int y2, int z2){
@@ -133,10 +134,11 @@ void TTTApp::appInit(){
 void TTTApp::renderApp_first(){
 
     if (chosen_btn == -1){
-        printStringUsingGlutBitmapFont(
+        static char text[] = 
                 "Please, press the button of your choice\n"
-                "You wish to use for painting ...\n",
-                GLUT_BITMAP_TIMES_ROMAN_24, 0, SIZE+30, 0, 1,0,0);
+                "You wish to use for painting ...\n";
+        printStringUsingGlutBitmapFont(
+                text, GLUT_BITMAP_TIMES_ROMAN_24, 0, SIZE+30, 0, 1,0,0);
     }
 }
 

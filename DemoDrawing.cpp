@@ -8,11 +8,11 @@
 #include <iostream>
 
 
-char *drawing_help = 
+static char drawing_help[] = 
 "For the first time, click with some mouse button\n"
 "to define which button you will be using for painting.\n"
 "Than - just paint ... ;)\n"
-"\nUse \"c\" key to erase any drawing";;
+"\nUse \"c\" key to erase any drawing";
 
 int dist3D(point3D_t &a, int x2, int y2, int z2){
     int dx, dy, dz;
@@ -27,12 +27,11 @@ char* DrawingApp::appHelp(){
 }
 
 void DrawingApp::renderApp_first(){
-
     if (painting_btn == -1){
+        static char text[] = "Please, press the button of your choice\n"
+                             "You wish to use for painting ...\n";
         printStringUsingGlutBitmapFont(
-                "Please, press the button of your choice\n"
-                "You wish to use for painting ...\n",
-                GLUT_BITMAP_TIMES_ROMAN_24, 0, SIZE+30, 0, 1,0,0);
+                text, GLUT_BITMAP_TIMES_ROMAN_24, 0, SIZE+30, 0, 1,0,0);
     }
 }
 

@@ -9,6 +9,22 @@
 
 using namespace std;
 
+char help[] = 
+"Useful keys:\n"
+"Esc - quit application\n"
+"  f - toggle fullscreen\n"
+"  h - toggle this help\n"
+"  l - switch mouse layout\n"
+"  p - toggle automove mode (Play)\n"
+"  c - center view\n"
+"   Right  - increase autmove speed\n"
+"   Left   - decrease autmove speed\n"
+"   Up     - increase autmove amplitude\n"
+"   Down   - decrease autmove amplitude\n";
+
+char apphelp[] = "";
+char *BaseApp::appHelp(){ return apphelp; }
+
 
 BaseApp::BaseApp() {
     Surf_Display = NULL;
