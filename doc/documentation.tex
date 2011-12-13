@@ -1,0 +1,114 @@
+% File name: documentation.tex
+% Date:      13.12.2011 16:13
+% Authors:   Radek Fér          <xferra00@stud.fit.vutbr.cz>
+%            Miroslav Paulík    <xpauli00@stud.fit.vutbr.cz>
+
+\documentclass[a4paper,12pt,titlepage]{article}
+\usepackage[czech]{babel}
+\usepackage{color}
+\usepackage{tabularx}
+\usepackage{hyperref}
+\usepackage[utf8]{inputenc}
+\usepackage[left=2cm, top=3cm, text={17cm, 24cm}]{geometry}
+\usepackage{graphicx} % for .eps images
+\usepackage{fancyvrb,fancybox,calc}
+\usepackage[svgnames]{xcolor}
+ 
+\hypersetup{linktoc=all}
+%\hypersetup{pdfborder={0 0 0 [0 0]}
+\hypersetup{colorlinks=true}
+\hypersetup{linkcolor=blue}
+
+% European layout (no extra space after `.')
+\frenchspacing
+
+% no indent, free space between paragraphs
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{1ex plus 0.5ex minus 0.2ex}
+
+\begin{document}
+\renewcommand{\refname}{Literatura}
+
+\title{\LARGE Pokus o vytvoření jednoduchého 3D \uv{myšítka} \\
+       {\large Projektová dokumentace do předmětu ITU 2011/12}}
+\author{ \begin{tabularx}{\textwidth}{X r l X}
+& Radek Fér & \texttt{xferra00@stud.fit.vutbr.cz} & \\
+& Miroslav Paulík & \texttt{xpauli00@stud.fit.vutbr.cz} & \\
+\end{tabularx}
+}
+\date{\today, FIT VUT Brno}
+
+\maketitle
+
+\newpage
+
+\thispagestyle{empty}
+\tableofcontents
+\newpage
+\setcounter{page}{1}
+
+% \label{summary}
+% \cite{citId}
+% \url{www.google.com}
+
+%\begin{figure}[htb]
+%\centering
+%\includegraphics[width=0.8\textwidth]{img/myplot.eps}
+%\caption{Mycaption}
+%\label{fig:myplot}
+%\end{figure}
+
+\section{Úvod}\label{intro}
+Tento projekt si klade za cíl odzkoušet možnosti využití speciálního
+vstupního zařízení (zkonstruovaného podle myšlenky jednoho z autorů),
+které {\bf využívá 2 dostupná 2D polohovací zařízení (myš, touchpad, \ldots)
+k vytvoření jednoho 3D polohovacího zařízení}. A to tak, že pohyby
+oněch dvou 2D polohovacích zařízení jsou slučovány do pohybů nad 3D.
+
+Dále si projekt klade za cíl navrhnout a otestovat různá uživatelská rozhraní
+využívající tohoto zařízení tak, aby se práce s virtuálním 3D prostorem
+stala více efektivnější, intuitivnější a příjemnější.
+
+\input{navrh}
+\input{implementace}
+\input{experimenty}
+
+\newpage
+
+\appendix
+
+\section{Návrh zadání}\label{zadani}
+
+{\it Název:}~{\bf Pokus o vytvoření jednoduchého 3D polohovacího zařízení.}
+\begin{itemize}
+\item{2 myši (nebo jiné polohovací zařízení), každá ovládá pozici na jedné
+      rovině ($xy$, $xz$ či $yz$).}
+\item{Hlavní fór by byl v tom, že by i druhá myš (a ne jen kurzor v rovině kolmé
+      k desce stolu) fyzicky jezdila po rovině kolmé k desce stolu.}
+\item{Vhodnou kombinací vstupů z těchto 2 myší lze určit bod v 3D a případně
+      s ním manipulovat (pozice na ose společné pro obě použité roviny
+      by se určila jako průměr souřadnic).}
+\item{Možné módy (možno měnit např. kombinací stisků tlačítek na myši):}
+    \begin{itemize}
+    \item{{\bf základní}\,--\,posunování 3D kurzoru v prostoru,
+            tlačítkem se provede výběr nejbližšího objektu}
+    \item{{\bf rotační}\,--\,rotace vybraného objektu pomocí např. pomocí
+            \uv{circullar-scrolling}}
+    \item{{\bf morfní}\,--\,změna nějakého atributu objektu
+            (velikost, barva, tvar, ...)}
+    \end{itemize}
+\item{Nebo celé úplně jinak, cílem by bylo zkoumat schopnosti interakce
+        takovéhoto HW zařízení.}
+\item{K demonstraci by sloužila např. hra 3D piškvorky (pro jednoduchost
+        by bylo implementováno pouze označování políček a ne logika
+        hry\,--\,cílem projektu by nebylo vytvořit hru 3D piškvorky,
+        ale \uv{prověření zařízení pro práci ve 3D}).}
+\item{{\it openGL}}
+\item{Možné využití (jen co mě napadlo): modelování 3D scény, hry,
+        ovládání jeřábu, \ldots}
+\end{itemize}
+
+% \bibliographystyle{plain}
+% \bibliography{itu}
+
+\end{document}

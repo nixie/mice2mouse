@@ -23,6 +23,7 @@ class HuntApp : public BaseApp {
         struct timeval tstart, now;
         int secs;
         char text_buf[TEXT_MAX];
+        int chosen_btn;
 
 
     public:
@@ -33,6 +34,7 @@ class HuntApp : public BaseApp {
         virtual void renderApp_first();
 
         virtual void appInit();
+        virtual char* appHelp();
         virtual void appExit();
         virtual void appTimer();
         virtual void appBtnUp(int button);

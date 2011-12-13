@@ -36,6 +36,7 @@ class BaseApp : public CEvent {
         char params[TEXT_MAX];
         float time_increment;
         int displacement;
+        bool layout_xzxy;
     private:
         SDL_TimerID timer_id;
         static const int TIMER_INTERVAL = 20;
@@ -43,7 +44,9 @@ class BaseApp : public CEvent {
 
         // periodic model moving
         bool paused;
+        bool showhelp;
         float rot_x, rot_y, rot_z;
+        float spinrot_x, spinrot_y, spinrot_z;
         float mytime;
 
 
@@ -64,6 +67,7 @@ class BaseApp : public CEvent {
         virtual void renderApp_first(){}
 
         virtual void appInit(){}
+        virtual char* appHelp();
         virtual void appExit(){}
         virtual void appTimer(){}
         virtual void appBtnUp(int button){}

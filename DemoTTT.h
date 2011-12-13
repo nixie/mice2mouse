@@ -19,13 +19,16 @@ class TTTApp : public BaseApp {
     private:
         occup_t in_turn;
         occup_t ttt_state[n_blks][n_blks][n_blks];
+        int chosen_btn;
 
     public:
         static const int bs=SIZE/n_blks;
         static const int bs_half=bs/2;
         virtual void renderApp();
+        virtual void renderApp_first();
 
         virtual void appInit();
+        virtual char* appHelp();
         virtual void appBtnUp(int button);
         virtual void appBtnDown(int button);
         virtual void appMotion(int axis, int delta);

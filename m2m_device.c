@@ -10,14 +10,16 @@
 #include <unistd.h>
 #include <linux/input.h>
 #include <linux/uinput.h>
-#include <sys/stat.h>
+#include <sys/select.h>
 #include <fcntl.h>
 #include <string.h>
 #include <signal.h>
 #include <errno.h>
-#include <GL/glut.h>
+#include <getopt.h>
 
-#define ERR(ret) if (ret == -1) { fprintf(stderr, "At line %d :", __LINE__); perror(NULL); exit(EXIT_FAILURE); }
+#define ERR(ret) if (ret == -1) {\
+                    fprintf(stderr, "At line %d :", __LINE__);\
+                    perror(NULL); exit(EXIT_FAILURE); }
 
 int fd_uinput;
 int fd_mice[2];
@@ -31,6 +33,8 @@ int m2m_old_x[2], m2m_old_y[2];
 int m2m_new_x[2], m2m_new_y[2];
 
 char uinput_path[] = "/dev/uinput";
+char *mouseA_fname = NULL;
+char *mouseB_fname = NULL;
 
 // this can be altered at startup by commandline parameter -m (TODO)
 // explanation:
@@ -281,13 +285,15 @@ void m2m_cleanup(){
 int m2m_mice_init(char *evdevA, char *evdevB){
     fd_mice[0] = open(evdevA, O_RDONLY);
     if (fd_mice[0] == -1){
-        perror("opening device A: ");
+        fprintf(stderr, "Error opening the A device %s:", evdevA);
+        perror(NULL);
         m2m_cleanup();
         return -1;
     }
     fd_mice[1] = open(evdevB, O_RDONLY);
     if (fd_mice[1] == -1){
-        perror("opening device B: ");
+        fprintf(stderr, "Error opening the B device %s:", evdevA);
+        perror(NULL);
         m2m_cleanup();
         return -1;
     }
@@ -307,13 +313,66 @@ int m2m_mice_init(char *evdevA, char *evdevB){
     return 0;
 }
 
+int m2m_parse_cmdline(int argc, char *argv[]){
+    int c;
+    int m_flg=0;
+
+    while ((c=getopt(argc, argv, "m:")) != -1){
+        switch(c){
+            case 'm':
+                if (m_flg != 0){
+                    fprintf(stderr, "Multiple mapping specification!\n");
+                    return 1;
+                }else{
+                    m_flg = 1;
+
+                    if (strlen(optarg) != 4){
+                        fprintf(stderr,
+                                "Mapping string must be of length 4!\n");
+                        return 1;
+                    }
+
+                    // check mapping syntax
+                    for (int i=0; i < 4; i++){
+                        char c = optarg[i];
+                        if (c >= 'x' && c <= 'z'){
+                            continue;
+                        }else{
+                            fprintf(stderr, "Bad mapping specification!\n");
+                            return 1;
+                        }
+                    }
+
+
+                    // copy mapping to the mapping variable
+                    memcpy(mapping, optarg, 4);
+                }
+                break;
+            default:
+                // getopt already printed error
+                return 1;
+        }
+    }
+
+    if (optind + 1 >= argc){
+        fprintf(stderr, "Not enough parameters!\n");
+        return 1;
+    }
+
+    mouseA_fname = (char*)argv[optind];
+    mouseB_fname = argv[optind+1];
+
+    return 0;
+}
+
+
 int main(int argc, char *argv[]){
-    if (argc != 3){
+    if (m2m_parse_cmdline(argc, argv) != 0){
         fprintf(stderr, "Usage: %s input_dev_A input_dev_B\n", argv[0]);
         return 1;
     }
 
-    if (m2m_mice_init(argv[1], argv[2]) != 0){
+    if (m2m_mice_init(mouseA_fname, mouseB_fname) != 0){
         return 1;
     }
 

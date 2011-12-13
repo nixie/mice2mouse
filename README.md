@@ -47,9 +47,13 @@ by running the uinput daemon:
     mice2mouse.*      - C module, which can translate events from 2 mice
                         into 1 3D device. Events are fed into client application
                         using clients callbacks. See mice2mouse.h for more info
+                        (deprecated, in demos, we are now using m2m joystick
+                        created with m2m_device)
     main.cpp          - application using mice2mouse.o module services
     hunt_log.*        - class used in main.cpp to harvest statistical data
                         about clicks timing
+    m2m_device.c      - create virtual 3D m2m joystick using uinput and then
+                        feed it with merged events from /dev/input/eventAB
     joytest.c         - uses SDL to get info from system about available
                         joysticks and theirs options
 

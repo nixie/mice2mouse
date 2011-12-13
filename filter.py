@@ -13,5 +13,5 @@ for line in sys.stdin.readlines():
         continue
     nums.append(float(line))
 
-for v in generic_filter(nums, gmean, 5):
+for v in generic_filter(nums, cmedian, 5):
     print(v)
