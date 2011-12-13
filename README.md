@@ -63,3 +63,4 @@ by running the uinput daemon:
 * run some demo application, f.e. DrawingDemo
 
 Note, that itu\_demo uses own translator and so you have to give to it same parameters as to m2m\_device daemon.
+Also note, that default mapping of 4 input axes to 3 output axes can be fully customized, by the mapping string (now simply hardcoded into source - TODO).
