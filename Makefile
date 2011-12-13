@@ -106,7 +106,21 @@ CEvent.o:	CEvent.cpp CEvent.h
 # RUN
 # ---------------------------------------------------------
 
-run:
+m2m:
+	#m2m
+ttt:
+	#ttt
+drawing:
+	#drawing
+demo:
+	#demo
+
+run: m2m drawing ttt demo
+
+log:
+	#merge ./log do jedineho logu, ktery ulozi do ./stats
+stats: log
+	#gnuplot stats
 
 # ---------------------------------------------------------
 # CLEAN
