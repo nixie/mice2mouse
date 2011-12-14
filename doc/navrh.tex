@@ -2,3 +2,56 @@
 % Date:      13.12.2011 17:00
 
 \section{Návrh}
+
+Zařízení je navržené tak, aby jeho služeb mohl využívat úplně každý.
+Hardwarové vybavení (tedy de facto pořizovací cena zařízení\,--\,software
+je šířen v otevřené podobě pod GPL licencí) obnáší pouze 2 klasické myši.
+
+\subsection{Princip činnosti}
+
+Princip činnosti navrhovaného zařízení je zobrazen na obrázku \ref{fig:basicidea}.
+
+\begin{figure}[htb]
+\centering
+\includegraphics[width=0.6\textwidth]{img/basic_idea.eps}
+\caption{Princip činnosti zařízení}
+\label{fig:basicidea}
+\end{figure}
+
+Nejdůležitější část zařízení tvoří část {\bf Merging}, kde dochází k mapování
+čtyřech vstupních os (osy $x$ a $y$, u obou myší) na osy 3 (odpovídající
+osám 3D prostoru, ve kterém chceme pracovat). Implementace této části je
+detailně popsána v sekci \ref{merging}.
+
+
+\subsection{Fyzické uspořádání}
+
+Při návrhu zařízení jsme zohlednili praktickou stránku, jak zacházet
+se 2 myšmi:
+\begin{itemize}
+\item{{\bf Vše v 1 fyzické rovině}}
+    \begin{itemize}
+    \item[$+$]{ obě ruce stejně zatížené, žádná nemusí držet váhu myši a sebe u vertikálně položené podložky}
+    \item[$-$]{ ne tak intuitivní, jako následující uspořádání}
+    \end{itemize}
+\item{{\bf Podložky obou myší fyzicky umístěny ortogonálně}\,--\,vlastnosti viz předchozí uspořádání, ale naopak}
+\item{{\bf Varianta pro 1 ruku}\,--\,na klasické myši je zleva (myš pro praváky) umístěn drobný touchpad ovládaný palcem ovládající zbývající osu}
+\end{itemize}
+
+
+\subsection{Existující zařízení}\label{solutions}
+
+Obecný termín pro takováto zařízení je {\bf 3D myš}.
+
+Na trhu se již dlouho vyskytují výrobky s podobnou funkcionalitou.
+Jde např. od výrobky fy {\it 3Dconnexion}, kupř. {\bf SpaceNavigator}\,--\,zařízení
+určené pro pohyb a minupulaci s objekty ve 3D. Toto zařízení umožňuje
+ovládat 6 směrů pomocí jedné ruky (tažením, rotací, stlačením, vytažením
+apod.).
+
+Další možnosti:
+\begin{itemize}
+\item{výrobky fy {\bf Axsotic}\,--\,něco podobného, využívá standardu HID}
+\item{{\bf Wii Remote Nunchuk}\,--\,obsahuje 3D akcelerometr a tlačítka}
+\item{jistě by se našly i další}
+\end{itemize}
