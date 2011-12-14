@@ -29,7 +29,7 @@
 \begin{document}
 \renewcommand{\refname}{Literatura}
 
-\title{\LARGE Pokus o vytvoření jednoduchého 3D \uv{myšítka} \\
+\title{\LARGE {\bf Vstupní rozhraní mice2mouse}\\
        {\large Projektová dokumentace do předmětu ITU 2011/12}}
 \author{ \begin{tabularx}{\textwidth}{X r l X}
 & Radek Fér & \texttt{xferra00@stud.fit.vutbr.cz} & \\
@@ -77,11 +77,34 @@ stala více efektivnější, intuitivnější a příjemnější.
 
 Možnosti využití tohoto zařízení jsou všude tam, kde je třeba efektivně
 pracovat ve virtuálním 3D prostoru (modelování, hry, ovládání skutečných
-modelů, \ldots
+modelů, \ldots)
+
+\subsection{Princip činnosti}
+
+Princip činnosti navrhovaného zařízení je zobrazen na obrázku \ref{fig:basicidea}.
+
+\begin{figure}[htb]
+\centering
+\includegraphics[width=0.6\textwidth]{img/basic_idea.eps}
+\caption{Princip činnosti zařízení}
+\label{fig:basicidea}
+\end{figure}
+
+Nejdůležitější část zařízení tvoří {\bf slučovač}, kde dochází k mapování
+čtyřech vstupních os (osy $x$ a $y$, u obou myší) na osy 3 (odpovídající
+osám 3D prostoru, ve kterém chceme pracovat). Odtud název \uv{mice2mouse}, příp.
+zkratka \uv{m2m}.
+Obecné informace jsou uvedeny v sekci \ref{merging}, konkrétní implementace
+je pak popsána v sekci \ref{merging_implem}.
+
+
+\clearpage
 
 \input{navrh}
 \input{implementace}
 \input{experimenty}
+
+\section{Závěr}\label{conclusion}
 
 \newpage
 
