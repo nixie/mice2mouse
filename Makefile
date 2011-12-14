@@ -132,10 +132,12 @@ doc:
 # ---------------------------------------------------------
 
 clean-latex:
-	rm -f $(foreach var,$(LATEXFILES),$(DOCNAME)$(var))
+	# rm -f $(foreach var,$(LATEXFILES),$(DOCNAME)$(var))
+	make -C doc clean
 
 clean:
 	rm -f $(foreach var,$(CLEAN),$(var))
+	make -C doc clean
 
 # ---------------------------------------------------------
 # LATEX
