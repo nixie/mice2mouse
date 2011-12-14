@@ -1,3 +1,6 @@
+/*
+ * This code is taken from http://www.sdltutorials.com/sdl-events 
+ */
 #include "CEvent.h"
 
 CEvent::CEvent(){}

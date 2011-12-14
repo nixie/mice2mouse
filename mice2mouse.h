@@ -1,8 +1,6 @@
 /*
    Date:     04.11.2011 17:26
    Author:   Radek Fér
-   Project:  mice2mouse
-   Description:   
 
    Copyright (C) 2011 Radek Fér <xferra00@stud.fit.vutbr.cz>
 

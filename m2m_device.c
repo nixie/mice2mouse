@@ -1,10 +1,30 @@
+/*
+   Copyright (C) 2011 Radek Fér <xferra00@stud.fit.vutbr.cz>
+
+   This program is free software; you can redistribute it and/or
+   modify it under the terms of the GNU General Public License as
+   published by the Free Software Foundation; either version 2 of the
+   License, or (at your option) any later version.
+
+   This program is distributed in the hope that it will be useful, but
+   WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   in a file called COPYING along with this program; if not, write to
+   the Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA
+   02139, USA.
+*/
+
 // This program creates virtual device /dev/input/eventXY from 2 physical
 // 2D pointers (events EV_REL or EV_ABS). This device offers EV_ABS type
-// of events, but actually it is EV_REL events generated -- it can be then
+// of events, but actually EV_REL events are generated -- it can be then
 // easily used with GLUT or SDL event subsytem.
 //
 // Note, that uinput module must be loaded into kernel. Use evtest utility,
 // to list available devices and to select the correct ('m2m') in user app.
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
