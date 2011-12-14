@@ -107,8 +107,10 @@ CEvent.o:	CEvent.cpp CEvent.h
 # ---------------------------------------------------------
 
 log:
-	#merge ./log do jedineho logu, ktery ulozi do ./stats
-stats: log
+	./delta_correct.py
+mean: log
+	#mean
+stats: mean
 	#gnuplot stats
 	
 run: $(NAME)
