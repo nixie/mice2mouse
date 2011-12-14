@@ -103,16 +103,20 @@ CEvent.o:	CEvent.cpp CEvent.h
 	$(CC) -c $(CFLAGS) $< -o $@
 
 # ---------------------------------------------------------
-# RUN
+# PROCESSING OF LOGS
 # ---------------------------------------------------------
 
 log:
 	./delta_correct.py
-mean: log
-	#mean
-stats: mean
-	#gnuplot stats
+
+stats: log
+	gnuplot aiming_time_progress.plt
 	
+
+# ---------------------------------------------------------
+# RUN
+# ---------------------------------------------------------
+
 run: $(NAME)
 	sudo ./DemoCursor
 	sudo ./DemoDrawing
