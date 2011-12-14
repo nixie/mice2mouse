@@ -16,3 +16,5 @@ img/%.eps:	img/%.dia
 
 clean:
 	rm -f *.aux *.out *.log *.pdf *.toc *.bbl *.blg
+	rm -f img/*-eps-converted-to.pdf
+	rm -f img/basic_idea.eps
