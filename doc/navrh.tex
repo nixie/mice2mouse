@@ -7,22 +7,21 @@ Zařízení je navržené tak, aby jeho služeb mohl využívat úplně každý.
 Hardwarové vybavení (tedy de facto pořizovací cena zařízení\,--\,software
 je šířen v otevřené podobě pod GPL licencí) obnáší pouze 2 klasické myši.
 
-\subsection{Princip činnosti}
+\subsection{Slučovač}\label{merging}
 
-Princip činnosti navrhovaného zařízení je zobrazen na obrázku \ref{fig:basicidea}.
+Výstupem ze 2 myší jsou 4 nezávislé osy, které chceme nějak sloučit
+do 3 a exituje mnoho kombinací, jak to udělat. Zařízení by mělo umožňovat
+definici vlastního mapování, dle chuti každého.
 
-\begin{figure}[htb]
-\centering
-\includegraphics[width=0.6\textwidth]{img/basic_idea.eps}
-\caption{Princip činnosti zařízení}
-\label{fig:basicidea}
-\end{figure}
+Pro jednoznačné určení mapování budeme nadále používat tzv. {\it mapstring},
+který určuje, která osa na kterou bude mapována. Myši rozlišujeme pomocí
+písmen {\bf A} a {\bf B}.
 
-Nejdůležitější část zařízení tvoří část {\bf Merging}, kde dochází k mapování
-čtyřech vstupních os (osy $x$ a $y$, u obou myší) na osy 3 (odpovídající
-osám 3D prostoru, ve kterém chceme pracovat). Implementace této části je
-detailně popsána v sekci \ref{merging}.
-
+Příklad mapstringu: {\tt xyxz}\,--\,osa $x$ myši A se mapuje na osu $x$, osa $y$ myši A se
+mapuje na osu $y$, osa $x$ myši B se mapuje na osu $x$ a osa $z$ myši B se
+mapuje na osu $z$.
+V kapitole o testování (\ref{experiments}) se dozvíte, že mapování {\tt xzxy}
+vyhovovalo většině lidí, na druhém místě pak skončilo mapování {\tt xyxz}.
 
 \subsection{Fyzické uspořádání}
 
@@ -36,9 +35,13 @@ se 2 myšmi:
     \end{itemize}
 \item{{\bf Podložky obou myší fyzicky umístěny ortogonálně}\,--\,vlastnosti viz předchozí uspořádání, ale naopak}
 \item{{\bf Varianta pro 1 ruku}\,--\,na klasické myši je zleva (myš pro praváky) umístěn drobný touchpad ovládaný palcem ovládající zbývající osu}
+
 \end{itemize}
-
-
+Nabízí se ještě možnost ovládat zbývající osu kolečkem myši, nicméně
+tuto možnost jsme dále nezkoumali. Kolečka většiny myší mají navíc nedostačující
+rozlišení (což by nesplňovalo podmínku, že chceme ovládat všechny 3 osy nezávisle
+a rovnocenně).
+\clearpage
 \subsection{Existující zařízení}\label{solutions}
 
 Obecný termín pro takováto zařízení je {\bf 3D myš}.

@@ -3,16 +3,90 @@
 
 \section{Implementace}
 
-\subsection{Overview}
+Součástí projektu je implementace ovladače zařízení a dále několika
+demonstračních aplikací. Kód je psán jazykem C (slučovač) a C++ (demo aplikace).
+Slučovač je nyní možné přeložit pouze v OS GNU/Linux,
+díky silné a nutné vazbě na jeho vstupní subsystém. Demonstrační aplikace
+(a tedy jakýkoli klientský software, který by chtěl využívat naše rozraní)
+už přenositelné jsou (je zde pouze závislost na knihovnách SDL a GLUT).
 
-\subsection{Merging}\label{merging}
+\subsection{Slučovač}\label{merging_implem}
+
+Jak již bylo zmíněno, implementace slučovače je silně vázána na vstupní
+subsystém Linuxového jádra. V této části jsou tyto vazby popsány spolu
+s tím, jak přesně slučovač funguje.
+
+\subsubsection*{Vstupní sybsystém v Linuxu}
+Každé vstupní zařízení rozpoznané Linuxem má v adresáři {\tt /dev/input/}
+vlastní speciální soubor, který je možný použít z userspace k přístupu
+k tomtuto zařízení, typicky pro čtení událostí.
+Všechny události mají společný formát a jejich popis je možné nalézt
+v {\tt /usr/include/linux/input.h}.
+
+Nás zajímají události o pohybu myši, jejichž typ je {\tt EV\_REL}
+a dále se dělí na zprávy {\tt REL\_X} a {\tt REL\_Y}.
+Každá takováto zpráva nese navíc časové razítko a velikost změny
+polohy v dané ose.
+
+Upozornění: Xka (Xorg server) si většinou myš, která je nastavena
+jako {\it CorePointer} zaberou pro sebe a ta je poté pro další čtení
+\uv{němá}.
+
+Slučovač tedy nedělá nic jiného, než že čte ze dvou souborů (např.
+{\tt /dev/input/event10} a {\tt /dev/input/event11}), tyto data
+interpretuje jako události a hodnoty výchylek os mapuje podle {\it mapstringu}
+na výchylky os výstupních.
+
+\subsubsection*{Virtuální zařízení a modul uinput}
+
+Zde popisujeme, jak nabídnout výstup slučovače k dispozici aplikacím.
+
+Původní prototyp našeho slučovače je obsažen v souborech {\tt mice2mouse.\{cpp|h\}}.
+Aplikace si pomocí tohoto modulu mohla zaregistrovat callback funkce volané
+při nějaké události. Nicméně musela také zajistit pravidelné volání funkce
+{\tt m2m\_workHorse()}, která zjišťovala, zdali je nějaká událost k dispozici
+a příp. volala registrované funkce. Kompletní aplikace využívající
+tento modul je v souboru {\tt main.cpp}.
+
+Tento přístup není ideální, pro jsme hledali jiné řešní a to nalezli
+v modulu linuxového jádra s názvem {\bf uinput}. Tento modul umožňuje
+vytvořit virtuální vstupní zařízení a z userspace ho \uv{krmit} událostmi.
+Implementace slučovače využívající služeb tohoto modulu je v souboru
+{\tt m2m\_device.c}.
+
+Výsledný spustitelný program má 2 povinné parametry\,--\,názvy speciálních
+souborů zařízení pro myši {\bf A} a {\bf B} a jeden volitelný parametr
+({\tt -m}) udávající mapování, tedy {\it mapstring}. Výchozí mapování
+je {\tt xyxz}.
+
+Poznámka: pro úspěšné spuštění je nutné mít v jádře zavedený modul {\tt uinput}.
+To se dá zjistit pomocí příkazu {\tt lsmod | grep uinput} a případně
+napravit pomocí {\tt modprobe uinput}.
+
+Po spuštění se vytvoří virtuální zařízení (kde jinde než v {\tt /dev/input/})
+s názvem \uv{m2m}. Toto zařízení, ač se tváří jako klasický joystick
+(události typu {\tt EV\_ABS} pro 3 osy a nějaká tlačítka) ale ve skutečnosti
+v události zasílá relativní odchylku. Toto je kvůli zjednodušení implementace.
+Díky tomu, že je zařízení knihovnami jako GLUT či SDL rozpoznáno jako joystick,
+nemusíme se o nic starat a pouze využívat standardních funkcí těchto knihoven
+(např. v SDL funkce {\tt SDL\_JoyAxisEvent()}).
+
+Pouze je nutné se při výběru joysticku dotazovat na joystick se jménem {\tt m2m}.
+Toto by šlo v budoucnu jistě vyřešit čistěji.
 
 
-\subsection{Knihovny}
-GLUT, SDL
+\subsection{Použité knihovny}
+Jak již bylo uvedeno, klientské aplikace mohou využít knihovny GLUT či
+SDL, příp. jiné, které mají nějakou podporu pro joysticky.
 
-\subsection{Omezení naší implementace}
+Pokud chceme mít aplikaci mimální, může sama způsobem uvedeným výše
+zpracovávat události ze souboru náležejímu zařízení m2m v {\tt /dev/input/}.
 
-- Pouze Linux
+\subsection{Demonstrační aplikace}
+Součástí výstupu projektu je implementace demonstračních aplikací využívající
+naše rozhraní. Vytvořili jsme jednoduché {\bf intro}, dále aplikaci
+pro {\bf kreslení ve 3D}, základ pro {\bf 3D piškvorky} a nakonec
+aplikaci {\bf 3D moorhuhn}, která byla použita při testování rozhraní.
+Pro postupné spuštění všech aplikací slouží příkaz {\tt make run}.
 
-
+\clearpage
