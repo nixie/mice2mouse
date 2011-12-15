@@ -12,7 +12,7 @@ $(DOCFILE).pdf: $(DOCFILE).tex $(INCLUDES) imgs
 imgs: img/basic_idea.eps
 
 img/%.eps:	img/%.dia
-	dia --nonew --nosplash -t eps $< -e $@
+	dia --nosplash -t eps $< -e $@
 
 clean:
 	rm -f *.aux *.out *.log *.pdf *.toc *.bbl *.blg
