@@ -3,13 +3,12 @@ INCLUDES=navrh.tex implementace.tex experimenty.tex
 
 all: $(DOCFILE).pdf
 
-$(DOCFILE).pdf: $(DOCFILE).tex $(INCLUDES) imgs
+$(DOCFILE).pdf: $(DOCFILE).tex $(INCLUDES) img/basic_idea.eps
 	pdflatex $(DOCFILE).tex
 	#bibtex   $(DOCFILE).aux
 	#pdflatex $(DOCFILE).tex
 	pdflatex $(DOCFILE).tex
 
-imgs: img/basic_idea.eps
 
 img/%.eps:	img/%.dia
 	dia --nosplash -t eps $< -e $@
