@@ -124,9 +124,6 @@ run: $(NAME)
 	sudo ./DemoHunt
 	echo "Dikec!"
 
-doc:
-	make -C doc;
-
 # ---------------------------------------------------------
 # CLEAN
 # ---------------------------------------------------------
@@ -165,7 +162,10 @@ divps:
 ps2pdf:
 	ps2pdf $(DOCNAME).ps
 
-pdf: clean-latex vlna bibtex latex-double divps ps2pdf
+doc:
+	make -C doc;
+
+pdf: doc
 
 # ---------------------------------------------------------
 # PACK
