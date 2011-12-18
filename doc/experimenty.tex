@@ -27,19 +27,20 @@ Možné odpovědi: ANO (7x), NE (18x).
 \noindent Preferujete obrácený význam levého a pravého tlačítka u druhého polohovacího zařízení?\\
 Možné odpovědi: ANO (4x), NE (21x).
 
-Z odpovědí, které byly většinově přikloněny k jedné z možností, vyplynuly požadavky pro ovládání polohovacích zařízení. Velmi překvapivě dopadl dotaz na obrácení významu levého a pravého tlačítko vzhledem opačnému pořadí prstů na druhé lidské ruce. Bylo možné očekávat, že se dozazující budou upřednostňovat stejný význam tlačítka ovládaného ukazováčkem stejně jako u druhé ruky. Výsledky průzkumu však ukázaly, že tomu tak být nemusí. 
+Z odpovědí, které byly většinově přikloněny k jedné z možností, vyplynuly požadavky pro ovládání polohovacích zařízení. Velmi překvapivě dopadl dotaz na obrácení významu levého a pravého tlačítko vzhledem opačnému pořadí prstů na druhé lidské ruce. Bylo možné očekávat, že dotazující budou upřednostňovat stejný význam tlačítka ovládaného ukazováčkem stejně jako u druhé ruky. Výsledky průzkumu však ukázaly, že tomu tak být nemusí. 
 
 \subsubsection{Pilotní test}
-Pro ověření správné funkčnosti instruktážních aplikací byl proveden pilotní test. Toho se zúčastnili pouze 2 dobrovolníci, kteří však nepatřili do skupity účastníků prvního a závěrečného experimentu. Tito dobrovolníci však velmi důsledně připomínkovaly každou nejasnost a hlásily každou nalezenou chybu. Na základě jejich poznámek k funkcionalitě byl implementován např. tzv \uv{spinning mód} umožňující automatickou rotaci kamery, která umožní snažší orientaci v 3D prostoru aniž by bylo nutné explicitně natáčet scénu. Dále bylo upraveno zvýraznění zaměření objektu v měřeném testu nebo vyladěn způsob, jakým uživatel měnil nastavení polohovacích zařízení.
+Pro ověření správné funkčnosti instruktážních aplikací byl proveden pilotní test. Toho se zúčastnili pouze 2 dobrovolníci, kteří však nepatřili do skupiny účastníků prvního a závěrečného experimentu. Tito dobrovolníci však velmi důsledně připomínkovali každou nejasnost a hlásili každou nalezenou chybu. Na základě jejich poznámek k funkcionalitě byl implementován např. tzv \uv{spinning mód} umožňující automatickou rotaci kamery, která umožní snažší orientaci v 3D prostoru aniž by bylo nutné explicitně natáčet scénu. Dále bylo upraveno zvýraznění zaměření objektu v měřeném testu nebo vyladěn způsob, jakým uživatel měnil nastavení polohovacích zařízení.
 
 \subsubsection{Experiment č. 2 - Efektivnost práce s rozhraním m2m}
-Cílem závěrečného pokusu bylo demonstrovat rychlost práce s rozhraním m2m a to měřením času potřebného ke splnění úkolu. Před samotným měřením byli všichni účastníci experimentu seznámeni s ovládáním ve třech demonstračních aplikacích, které sloužili k vyzkoušení práce v 3D prostředí a nastavení ovládání. Po tomto seznámení s prostředím byl každému zúčastněnému spuštěn test v podobě aplikace 3D moorhuhn, kde byl měřen čas \uv{zastřelení} 50-ti krychlí umístěných v 3D prostoru.
+Cílem závěrečného pokusu bylo demonstrovat rychlost práce s rozhraním m2m a to měřením času potřebného ke splnění úkolu. Před samotným měřením byli všichni účastníci experimentu seznámeni s ovládáním ve třech demonstračních aplikacích, které sloužily k vyzkoušení práce v 3D prostředí a nastavení ovládání. Po tomto seznámení s prostředím byl každému zúčastněnému spuštěn test v podobě aplikace 3D moorhuhn, kde byl měřen čas \uv{zastřelení} 50-ti krychlí náhodně umisťovaných v 3D prostoru.
 
-V tomto experimentu byly měřeny časy mezi jednotlivými zásahy a ty pak byly dále zpracovány. Všechny hodnoty byly interpolovány do přímky, jež znázorňovala relativní zrychlení při změřování a zásahu cíle. Následující obrázek ukazuje, že rychlost nalezení a provedení akce v 3D prostoru se limitně blíží běžné práci v prostředí 2D.
+V tomto experimentu byly měřeny časy mezi jednotlivými zásahy a ty pak byly dále zpracovány. Všechny hodnoty byly interpolovány do přímky, jež znázorňovala relativní zrychlení při zaměřování a zásahu cíle. Obrázek \ref{graf} ukazuje, že rychlost nalezení a provedení akce v 3D prostoru se nakonec přiblíží běžné práci v prostředí 2D.
+To je zajímavé, jelikož po hlubším seznámení se se zařízením bude tato rychlost jistě výrazně větší.
 
-\begin{figure}[htb]
+\begin{figure}[h]
 \centering
-\scalebox{0.7}{\includegraphics{img/aiming_time_progress.eps}}
+\scalebox{1}{\includegraphics{img/aiming_time_progress.eps}}
 \caption{Graf zlepšení práce v závisloti na čase.}
 \label{graf}
 \end{figure}
