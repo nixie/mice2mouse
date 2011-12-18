@@ -5,20 +5,42 @@
 Cílem experimentální části je získání užitečných informací o testovaném subjektu a z nich vycházející další vývoj. Tato kapitola bude tedy popisovat stategii testování a experimentů na rozhraní m2m, výběr vhodné skupiny účastníků těchto pokusů a popisem jednotlivých experimentů a analýzy jejich výsledků.
 
 \subsection{Strategie experimentování a testování}
-Úplně jako první bylo potřeba zjistit, jakým způsobem by měla být aplikace ovládána. Které tlačítka obou polohovacích zařízení používat ke kterým činnostem a jak správně nastavit osy pohybu každého ze vstupních zařízení. Jelikož má rozhraní pracovat v prostředí 3D, musí existovat prostředek pro prostorovou orientaci. Cílem druhého experimentu se tedy stalo zjištění reakcí uživatelů na různé možnosti natáčení 3D scény s ohledem na pohyb v 3D prostoru a jeho přizpůsobení. Získání výše zmíněných informací umožnilo vytvořit několik demonstračních aplikací, jež se později staly instruktážními nástroji pro poslední experiment. Než k němu ale došlo, bylo mezi účastníky testování provedena krítká analýza uživatelského rozhraní pro odstranění drobných nedostatků těchto jednoduchých aplikací. Cílem celého procesu experimentování a testování však bylo hlavně získání údajů o míře efektivnosti práce s takovým rozhraním. A právě to bylo námplní závěrečného experimentu. 
+Úplně jako první bylo potřeba zjistit, jakým způsobem by měla být aplikace ovládána, které tlačítka obou polohovacích zařízení se budou používat ke kterým činnostem a jak správně nastavit osy pohybu každého ze vstupních zařízení. Jelikož má rozhraní pracovat v prostředí 3D, musí navíc existovat prostředek pro prostorovou orientaci. Cílem prvního experimentu se tedy stalo zjištění reakcí uživatelů na různé možnosti ovládání prostorového kurzoru a jeho přizpůsobení při operaci otáčení 3D scény. Získání výše zmíněných informací umožnilo vytvořit několik demonstračních aplikací, jež se později staly instruktážními nástroji pro poslední experiment. Než k němu ale došlo, byl proveden pilotní test celé sady instruktážních aplikací kvůli zjištění možných nedostatků ještě před samotným testováním. Cílem celého procesu experimentování a testování však bylo hlavně získání údajů o míře efektivnosti práce s rozhraním m2m. A právě to bylo náplní závěrečného experimentu. 
 
 \subsubsection{Výběr účastníků experimentů}
-Největší vliv na výběr skupiny testujících uživatelů byla jejich schopnost pracovat s počítačem, uživatel mající problém obsluhovat jedno polohovací zařízení bude jistě mít problém i se zařízením druhým. Proto jsme požádali o účast v experimentování skupinu 15-ti vysokoškolských studentů, kteří s požadavkem běžného ovládání počítače nemají problém.
+Největší vliv na výběr skupiny testujících uživatelů byla jejich schopnost pracovat s počítačem, uživatel mající problém obsluhovat jedno polohovací zařízení bude jistě mít problém i se zařízením druhým. Proto jsme požádali o účast v experimentování skupinu 25-ti vysokoškolských studentů, kteří s požadavkem běžného ovládání počítače nemají problém.
 
-\subsubsection{experiment č. 1 - orientace v prostoru}
-Jak již bylo uvedeno výše, cílem prvního experimentu bylo nalezení optimálního ovládání a zjištění dalších možných nastavení, které by si eventuálně uživatel mohl explicitně zvolit. Jako forma získání informací byl zvolen dotazník %priloha dotaznik 1
-. Z analýzy jeho výsledků vyplynulo, že: %dodelat
+\subsubsection{Experiment č. 1 - Požadavky na ovládání a orientaci v 3D prostředí}
+Jak již bylo uvedeno výše, cílem prvního experimentu bylo nalezení optimálního ovládání a zjištění dalších možných nastavení, které by si eventuálně uživatel mohl explicitně zvolit. Jako forma získání informací byl zvolen dotazník. Ten byl rozdělen na 2 části. První byla zaměřena na informace o dotazované osobě a jejich zkušenostech s prací v 3D, zatímco druhá na jejich očekávání ohledně práce s 3D objekty.
 
-Pro další vývoj tedy bylo potřeba naimplementovat možnost záměny souřadných os mezi polohovacími zařízeními navzájem. Za zmínku také stojí fakt, že jak pravorukým, tak levorukým vyhovovalo maximálně prohození souřadných os, ovšem prohození významu levého a pravého tlačítka bylo vnímáno jako nepotřebné%opravdu?
-Dotazník nakonec posloužil i k orientačnímu zisku informací o dalších aktivitách a zkušenostech účastníků v oblasti práce v 3D aplikacích.
+\noindent Přehled důležitých dotazů a vyhodnocení jejich odpovědí:
 
-experiment1 - pohyb v prostoru - zjistit pozadavky na ovladani
-experiment2 - orientace v 3d prostoru
-testování   - odstraneni drobnych nedostatku
-experiment3 - schopnost prizpusobit se novemu prostredi za ucelem odhadu efektivity prace ve 3d prostoru pomoci rozhrani m2m
+\noindent Preferujete stejnou funkcionalitu tlačítek na obou polohovacích zařízeních?\\
+Odpovědi: ANO (25x), NE (0x).
+
+\noindent Které tlačítko preferujete pro natáčení scény?\\
+Odpovědi: LEVÉ (0x), PROSTŘEDNÍ (21x), PRAVÉ (4x).
+
+\noindent Preferujete obrácený pohyb myši (posun myši vlevo znamená posun vpravo na obrazovce) před pohybem shodným?\\
+Možné odpovědi: ANO (7x), NE (18x).
+
+\noindent Preferujete obrácený význam levého a pravého tlačítka u druhého polohovacího zařízení?\\
+Možné odpovědi: ANO (4x), NE (21x).
+
+Z odpovědí, které byly většinově přikloněny k jedné z možností, vyplynuly požadavky pro ovládání polohovacích zařízení. Velmi překvapivě dopadl dotaz na obrácení významu levého a pravého tlačítko vzhledem opačnému pořadí prstů na druhé lidské ruce. Bylo možné očekávat, že se dozazující budou upřednostňovat stejný význam tlačítka ovládaného ukazováčkem stejně jako u druhé ruky. Výsledky průzkumu však ukázaly, že tomu tak být nemusí. 
+
+\subsubsection{Pilotní testování}
+V rámci ověření správné funkčnosti instruktážních aplikací bylo provedeno pilotní testování. Tohoto se zúčastnili pouze 2 dobrovolníci, kteří však nepatřili do skupity účastníků prvního a závěrečného experimentu. Tito dobrovolníci však velmi důsledně připomínkovaly každou nejasnost a hlásily každou nalezenou chybu. Na základě jejich poznámek k funkcionalitě byl implementován např. tzv \uv{spinning mód} umožňující automatickou rotaci kamery, která umožní snažší orientaci v 3D prostoru aniž by bylo nutné explicitně natáčet scénu. Dále bylo upraveno zvýraznění zaměření objektu v měřeném testu nebo vyladěn způsob, jakým uživatel měnil nastavení polohovacích zařízení.
+
+\subsubsection{Experiment č. 2 - Efektivnost práce s rozhraním m2m}
+Cílem závěrečného pokusu bylo demonstrovat rychlost práce s rozhraním m2m a to měřením času potřebného ke splnění úkolu. Před samotným měřením byli všichni účastníci experimentu seznámeni s ovládáním ve třech demonstračních aplikacích, které sloužili k vyzkoušení práce v 3D prostředí a nastavení ovládání. Po tomto seznámení s prostředím byl každému zúčastněnému spuštěn test v podobě aplikace 3D moorhuhn, kde byl měřen čas \uv{zastřelení} 50-ti krychlí umístěných v 3D prostoru.
+
+V tomto experimentu byly měřeny časy mezi jednotlivými zásahy a ty pak byly dále zpracovány. Všechny hodnoty byly interpolovány do přímky, jež znázorňovala relativní zrychlení při změřování a zásahu cíle. Následující obrázek ukazuje, že rychlost nalezení a provedení akce v 3D prostoru se limitně blíží běžné práci v prostředí 2D.
+
+\begin{figure}[htb]
+\centering
+\includegraphics[width=0.6\textwidth]{img/aiming_time_progress.pdf}
+\caption{Graf zlepšení práce v závisloti na čase.}
+\label{fig:basicidea}
+\end{figure}
 
