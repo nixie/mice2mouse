@@ -22,3 +22,6 @@ plot    "stats/stats.txt" title 'Aiming', \
 
 #       "mylog.median" title 'Aiming (median)', \
 #        g(x) title 'Linear fit of aiming median', \
+
+pause -1
+
