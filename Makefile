@@ -27,7 +27,7 @@ NAME=xpauli00
 
 # parametry prekladu
 CC=g++
-LDFLAGS=-lglut -lGLU
+LDFLAGS=-lglut -lGLU -lSDL -lpthread
 CFLAGS=-Wall -pedantic -W -g  -Wno-unused
 #CFLAGS=-Wall -pedantic -W -g -DNDEBUG
 SRC=*.cpp *.h Makefile
@@ -78,23 +78,23 @@ itu_demo: main.cpp mice2mouse.o hunt_log.o
 	$(CC) $(CFLAGS) $(LDFLAGS) $^ -o $@
 
 joytest: joytest.c
-	$(CC) $(CFLGS) $(LDFLAGS) `sdl-config --libs --cflags` $^ -o $@
+	$(CC) $(CFLGS) $(LDFLAGS) `sdl-config --cflags` $^ -o $@
 
 # SDL version
 BaseApp.o: BaseApp.cpp BaseApp.h
 	$(CC) -c $(CFLAGS) `sdl-config --cflags` BaseApp.cpp -o $@
 
 DemoDrawing: CEvent.o BaseApp.o DemoDrawing.cpp DemoDrawing.h
-	$(CC) $(CFLAGS) $(LDFLAGS) `sdl-config --libs --cflags` $^ -o $@
+	$(CC) $(CFLAGS) $(LDFLAGS) `sdl-config --cflags` $^ -o $@
 
 DemoCursor: BaseApp.o CEvent.o DemoCursor.cpp
-	$(CC) $(CFLAGS) $(LDFLAGS) `sdl-config --libs --cflags` $^ -o $@
+	$(CC) $(CFLAGS) $(LDFLAGS) `sdl-config --cflags` $^ -o $@
 
 DemoTTT: BaseApp.o CEvent.o DemoTTT.cpp DemoTTT.h
-	$(CC) $(CFLAGS) $(LDFLAGS) `sdl-config --libs --cflags` $^ -o $@
+	$(CC) $(CFLAGS) $(LDFLAGS) `sdl-config --cflags` $^ -o $@
 
 DemoHunt: BaseApp.o CEvent.o hunt_log.o DemoHunt.cpp DemoHunt.h
-	$(CC) $(CFLAGS) $(LDFLAGS) `sdl-config --libs --cflags` $^ -o $@
+	$(CC) $(CFLAGS) $(LDFLAGS) `sdl-config --cflags` $^ -o $@
 
 CEvent.o:	CEvent.cpp CEvent.h
 	$(CC) -c $(CFLAGS) `sdl-config --cflags` $< -o $@
