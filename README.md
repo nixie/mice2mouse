@@ -1,6 +1,11 @@
 mice2mouse
 ==========
 
+News
+--------------------
+16.01.2012: Added screenshot functionality - output is a vector image :)
+
+
 Aims of this project
 --------------------
 
