@@ -25,6 +25,8 @@
 #include "BaseApp.h"
 #include "debug.h"
 
+#include "gl2ps-1.3.6/gl2ps.h"
+
 using namespace std;
 
 char help[] = 
@@ -62,6 +64,8 @@ BaseApp::BaseApp() {
     time_increment = 0.05;
     paused = false;
     showhelp = true;
+    take_screenshot=false;
+
 }
  
 
@@ -204,11 +208,34 @@ int BaseApp::OnExecute() {
         while(SDL_PollEvent(&Event)) {
             OnEvent(&Event);
         }
- 
+
         OnLoop();
-        OnRender();
+
+        // GL2PS stuff with rendering inside
+        if (take_screenshot){
+            take_screenshot=false;
+            FILE *fp = fopen("screenshot.pdf", "wb");
+            GLint buffsize = 0, state = GL2PS_OVERFLOW;
+            GLint viewport[4];
+            glGetIntegerv(GL_VIEWPORT, viewport);
+
+            while( state == GL2PS_OVERFLOW ){
+                buffsize += 1024*1024;
+                gl2psBeginPage ( "MyTitle", "MySoftware", viewport,
+                        GL2PS_PDF, GL2PS_BSP_SORT, GL2PS_SILENT |
+                        GL2PS_SIMPLE_LINE_OFFSET | GL2PS_DRAW_BACKGROUND |
+                        GL2PS_OCCLUSION_CULL | GL2PS_BEST_ROOT | GL2PS_COMPRESS,
+                        GL_RGBA, 0, NULL, 0, 0, 0, buffsize,
+                        fp, "screenshot.pdf" );
+                OnRender();
+                state = gl2psEndPage();
+            }
+            fclose(fp);
+        }else{
+            OnRender();
+        }
     }
- 
+
     appExit();
     OnCleanup();
  
@@ -546,6 +573,9 @@ void BaseApp::OnKeyDown(SDLKey sym, SDLMod mod, Uint16 unicode){
             break;
         case SDLK_l:
             layout_xzxy = !layout_xzxy;
+            break;
+        case SDLK_s:
+            take_screenshot = true;
             break;
         case SDLK_ESCAPE:
             Running = false;

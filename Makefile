@@ -27,10 +27,13 @@ NAME=xpauli00
 
 # parametry prekladu
 CC=g++
-LDFLAGS=-lglut -lGLU -lSDL -lpthread
+LDFLAGS=-lglut -lGLU -lSDL -lpthread -lz
 CFLAGS=-Wall -pedantic -W -g  -Wno-unused
 #CFLAGS=-Wall -pedantic -W -g -DNDEBUG
 SRC=*.cpp *.h Makefile
+
+GL2PS=gl2ps-1.3.6
+LIBGL2PS=$(GL2PS)/gl2ps.o
 
 # parametry spusteni
 
@@ -58,7 +61,7 @@ ALLFILES=$(NAME).tex $(NAME).bib Makefile czechiso.bst
 CLEAN=
 
 ifeq ($(CLEANBIN), enabled)
-CLEAN+=itu_demo joytest m2m_device DemoDrawing *.o DemoCursor DemoHunt DemoTTT
+CLEAN+=itu_demo joytest m2m_device DemoDrawing *.o DemoCursor DemoHunt DemoTTT $(GL2PS)/gl2ps.o
 endif
 ifeq ($(CLEANBACKUP), enabled)
 CLEAN+=*~
@@ -80,20 +83,26 @@ itu_demo: main.cpp mice2mouse.o hunt_log.o
 joytest: joytest.c
 	$(CC) $(CFLGS) $(LDFLAGS) `sdl-config --cflags` $^ -o $@
 
+$(GL2PS)/gl2ps.o:	$(GL2PS)/gl2ps.c $(GL2PS)/gl2ps.h
+	gcc -c -DHAVE_ZLIB $(GL2PS)/gl2ps.c -o $@
+
 # SDL version
 BaseApp.o: BaseApp.cpp BaseApp.h
 	$(CC) -c $(CFLAGS) `sdl-config --cflags` BaseApp.cpp -o $@
 
-DemoDrawing: CEvent.o BaseApp.o DemoDrawing.cpp DemoDrawing.h
+BaseApp: CEvent.o BaseApp.cpp BaseApp.h $(LIBGL2PS)
 	$(CC) $(CFLAGS) $(LDFLAGS) `sdl-config --cflags` $^ -o $@
 
-DemoCursor: BaseApp.o CEvent.o DemoCursor.cpp
+DemoDrawing: CEvent.o BaseApp.o DemoDrawing.cpp DemoDrawing.h $(LIBGL2PS)
 	$(CC) $(CFLAGS) $(LDFLAGS) `sdl-config --cflags` $^ -o $@
 
-DemoTTT: BaseApp.o CEvent.o DemoTTT.cpp DemoTTT.h
+DemoCursor: BaseApp.o CEvent.o DemoCursor.cpp $(LIBGL2PS)
 	$(CC) $(CFLAGS) $(LDFLAGS) `sdl-config --cflags` $^ -o $@
 
-DemoHunt: BaseApp.o CEvent.o hunt_log.o DemoHunt.cpp DemoHunt.h
+DemoTTT: BaseApp.o CEvent.o DemoTTT.cpp DemoTTT.h $(LIBGL2PS)
+	$(CC) $(CFLAGS) $(LDFLAGS) `sdl-config --cflags` $^ -o $@
+
+DemoHunt: BaseApp.o CEvent.o hunt_log.o DemoHunt.cpp DemoHunt.h $(LIBGL2PS)
 	$(CC) $(CFLAGS) $(LDFLAGS) `sdl-config --cflags` $^ -o $@
 
 CEvent.o:	CEvent.cpp CEvent.h

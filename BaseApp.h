@@ -53,6 +53,7 @@ class BaseApp : public CEvent {
         char coords[TEXT_MAX];
         char params[TEXT_MAX];
         float time_increment;
+        bool take_screenshot;
         int displacement;
         bool layout_xzxy;
     private:
